@@ -1,4 +1,3 @@
-/*
 package team4.buildweek_u5.configuration;
 
 import org.springframework.context.annotation.Bean;
@@ -40,4 +39,4 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-}*/
+}

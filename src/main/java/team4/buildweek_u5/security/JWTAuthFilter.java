@@ -1,4 +1,3 @@
-/*
 package team4.buildweek_u5.security;
 
 import jakarta.servlet.FilterChain;
@@ -63,4 +62,4 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         return new AntPathMatcher().match("/auth/**", request.getServletPath()) ||
                 new AntPathMatcher().match("/utenti/register", request.getServletPath());
     }
-}*/
+}
