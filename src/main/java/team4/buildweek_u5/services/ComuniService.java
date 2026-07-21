@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team4.buildweek_u5.entities.Comune;
 import team4.buildweek_u5.entities.Provincia;
+import team4.buildweek_u5.exceptions.NotFoundException;
 import team4.buildweek_u5.repositories.ComuneRepository;
 import team4.buildweek_u5.repositories.ProvinciaRepository;
 
@@ -51,7 +52,8 @@ public class ComuniService {
                 String nomeProvinciaCercato = ALIAS_PROVINCIA.getOrDefault(nomeProvincia, nomeProvincia);
 
                 Provincia provincia = provinciaRepository.findByNome(nomeProvinciaCercato)
-                        .orElseThrow(() -> new RuntimeException("Provincia non trovata: " + nomeProvincia));
+                        .orElseThrow(() -> new NotFoundException("provincia non trovata " + nomeProvincia));
+
 
                 Comune comune = comuneRepository.findByNome(nomeComune)
                         .orElse(new Comune());
