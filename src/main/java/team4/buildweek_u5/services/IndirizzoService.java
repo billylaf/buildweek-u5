@@ -6,6 +6,7 @@ import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import team4.buildweek_u5.entities.Cliente;
+import team4.buildweek_u5.entities.Comune;
 import team4.buildweek_u5.entities.Indirizzo;
 import team4.buildweek_u5.exceptions.BadRequestException;
 import team4.buildweek_u5.repositories.IndirizzoRepository;
@@ -18,9 +19,9 @@ public class IndirizzoService {
 
     private final IndirizzoRepository indirizzoRepository;
     private final ClienteService clienteService;
-    private final ComuneService comuneService;
+    private final ComuniService comuneService;
 
-    public IndirizzoService(IndirizzoRepository indirizzoRepository, ClienteService clienteService, ComuneService comuneService) {
+    public IndirizzoService(IndirizzoRepository indirizzoRepository, ClienteService clienteService, ComuniService comuneService) {
         this.indirizzoRepository = indirizzoRepository;
         this.clienteService = clienteService;
         this.comuneService = comuneService;
