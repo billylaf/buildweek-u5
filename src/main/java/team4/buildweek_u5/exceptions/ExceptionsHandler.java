@@ -59,6 +59,7 @@ public class ExceptionsHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorsPayload handleGenericError(Exception ex) {
+        ex.printStackTrace();
         return new ErrorsPayload("Errore interno del server: " + ex.getMessage(), LocalDateTime.now());
     }
 }
