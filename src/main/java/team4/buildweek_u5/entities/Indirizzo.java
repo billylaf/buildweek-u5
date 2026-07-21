@@ -39,6 +39,15 @@ public class Indirizzo {
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnoreProperties({  "indirizzi",
+            "fatture",
+            "dataInserimento",
+            "dataUltimoContatto",
+            "fatturatoAnnuale",
+            "pec",
+            "telefono",
+            "emailContatto",
+            "telefonoContatto",})
     private Cliente cliente;
 
     @ManyToOne
