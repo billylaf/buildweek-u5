@@ -14,7 +14,7 @@ public class UtenteRuolo {
     @JoinColumn(name = "username_utente")
     private Utente usernameUtente;
     @ManyToOne
-    @JoinColumn(name = "id_ruolo")
+    @JoinColumn(name = "nome_ruolo")
     private Ruolo ruolo;
 
     protected UtenteRuolo() {
