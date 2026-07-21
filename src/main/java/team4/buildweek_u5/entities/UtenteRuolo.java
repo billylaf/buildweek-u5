@@ -15,13 +15,16 @@ public class UtenteRuolo {
     private Utente usernameUtente;
     @ManyToOne
     @JoinColumn(name = "nome_ruolo")
-    private Ruolo ruolo;
+    private String ruolo;
 
     protected UtenteRuolo() {
     }
 
-    public UtenteRuolo(Utente usernameUtente, Ruolo ruolo) {
+    public UtenteRuolo(Utente usernameUtente) {
         this.usernameUtente = usernameUtente;
+    }
+
+    public void setRuolo(String ruolo) {
         this.ruolo = ruolo;
     }
 
