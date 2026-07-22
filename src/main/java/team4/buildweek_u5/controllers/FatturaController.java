@@ -27,13 +27,23 @@ public class FatturaController {
         return fatturaService.save(body);
     }
 
-    // GET /fatture paginata con ordinamento
+    // GET UNICA /fatture con filtri, paginazione e ordinamento opzionali
+    // required = false: indica che l'utente NON è obbligato a passare il parametro nell'URL.
+    // defaultValue: valore predefinito se l'utente non lo specifica.
     @GetMapping
     public Page<Fattura> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy) {
-        return fatturaService.findAll(page, size, sortBy);
+            @RequestParam(required = false) Long clienteId,        // es. /fatture?clienteId=1
+            @RequestParam(required = false) Long statoId,          // es. /fatture?statoId=2
+            @RequestParam(required = false) LocalDate data,         // es. /fatture?data=2026-05-10
+            @RequestParam(required = false) Integer anno,           // es. /fatture?anno=2026
+            @RequestParam(required = false) Double minImporto,      // es. /fatture?minImporto=100.0
+            @RequestParam(required = false) Double maxImporto,      // es. /fatture?maxImporto=5000.0
+            @RequestParam(defaultValue = "0") int page,            // Numero di pagina (da 0)
+            @RequestParam(defaultValue = "10") int size,           // Quanti risultati per pagina
+            @RequestParam(defaultValue = "id") String sortBy,       // Campo di ordinamento (es. importo, dataFattura)
+            @RequestParam(defaultValue = "asc") String sortOrder) { // Ordine: "asc" o "desc"
+
+        return fatturaService.findAll(clienteId, statoId, data, anno, minImporto, maxImporto, page, size, sortBy, sortOrder);
     }
 
     // GET /fatture/{id} findbyid
@@ -61,51 +71,52 @@ public class FatturaController {
         fatturaService.delete(id);
     }
 
-    // --------------------------ENDPOINT PER I FILTRI DELLE FATTURE CUSTOM
-
-    // GET /fatture/filtro-cliente?clienteId=1
-    @GetMapping("/filtro-cliente")
-    public Page<Fattura> filterByCliente(
-            @RequestParam Long clienteId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return fatturaService.filterByCliente(clienteId, page, size);
-    }
-
-    // GET /fatture/filtro-stato?statoId=2
-    @GetMapping("/filtro-stato")
-    public Page<Fattura> filterByStato(
-            @RequestParam Long statoId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return fatturaService.filterByStato(statoId, page, size);
-    }
-
-    // GET /fatture/filtro-data?data=2026-05-10
-    @GetMapping("/filtro-data")
-    public Page<Fattura> filterByData(
-            @RequestParam LocalDate data,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return fatturaService.filterByData(data, page, size);
-    }
-
-    // GET /fatture/filtro-anno?anno=2026
-    @GetMapping("/filtro-anno")
-    public Page<Fattura> filterByAnno(
-            @RequestParam int anno,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return fatturaService.filterByAnno(anno, page, size);
-    }
-
-    // GET /fatture/filtro-importi?min=100.0&max=5000.0
-    @GetMapping("/filtro-importi")
-    public Page<Fattura> filterByRangeImporti(
-            @RequestParam Double min,
-            @RequestParam Double max,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return fatturaService.filterByRangeImporti(min, max, page, size);
-    }
+    // SOSTITUITO CON GET ALL CON PARAMETRI OPZIONALI
+//    // --------------------------ENDPOINT PER I FILTRI DELLE FATTURE CUSTOM
+//
+//    // GET /fatture/filtro-cliente?clienteId=1
+//    @GetMapping("/filtro-cliente")
+//    public Page<Fattura> filterByCliente(
+//            @RequestParam Long clienteId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByCliente(clienteId, page, size);
+//    }
+//
+//    // GET /fatture/filtro-stato?statoId=2
+//    @GetMapping("/filtro-stato")
+//    public Page<Fattura> filterByStato(
+//            @RequestParam Long statoId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByStato(statoId, page, size);
+//    }
+//
+//    // GET /fatture/filtro-data?data=2026-05-10
+//    @GetMapping("/filtro-data")
+//    public Page<Fattura> filterByData(
+//            @RequestParam LocalDate data,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByData(data, page, size);
+//    }
+//
+//    // GET /fatture/filtro-anno?anno=2026
+//    @GetMapping("/filtro-anno")
+//    public Page<Fattura> filterByAnno(
+//            @RequestParam int anno,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByAnno(anno, page, size);
+//    }
+//
+//    // GET /fatture/filtro-importi?min=100.0&max=5000.0
+//    @GetMapping("/filtro-importi")
+//    public Page<Fattura> filterByRangeImporti(
+//            @RequestParam Double min,
+//            @RequestParam Double max,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByRangeImporti(min, max, page, size);
+//    }
 }

@@ -19,9 +19,9 @@ public class IndirizzoService {
 
     private final IndirizzoRepository indirizzoRepository;
     private final ClienteService clienteService;
-    private final ComuniService comuneService;
+    private final ComuneService comuneService;
 
-    public IndirizzoService(IndirizzoRepository indirizzoRepository, ClienteService clienteService, ComuniService comuneService) {
+    public IndirizzoService(IndirizzoRepository indirizzoRepository, ClienteService clienteService, ComuneService comuneService) {
         this.indirizzoRepository = indirizzoRepository;
         this.clienteService = clienteService;
         this.comuneService = comuneService;
@@ -38,7 +38,7 @@ public class IndirizzoService {
 
     public List<Indirizzo> getIndirizziByCliente(Long clienteId) {
         clienteService.findById(clienteId);
-        return indirizzoRepository.findbyClienteId(clienteId);
+        return indirizzoRepository.findByClienteId(clienteId);
     }
 
     @Transactional
@@ -49,7 +49,7 @@ public class IndirizzoService {
             throw new BadRequestException("Cliente non trovato con ID: " + indirizzo.getCliente().getId());
         }
 
-        Comune comune = comuneService.findById(indirizzo.getComune().getId());
+        Comune comune = comuneService.getComuneById(indirizzo.getComune().getId());
         if (comune == null) {
             throw new BadRequestException("Comune non trovato con ID: " + indirizzo.getComune().getId());
         }
@@ -90,7 +90,7 @@ public class IndirizzoService {
             throw new BadRequestException("Cliente non trovato con ID: " + indirizzoAggiornato.getCliente().getId());
         }
 
-        Comune comune = comuneService.findById(indirizzoAggiornato.getComune().getId());
+        Comune comune = comuneService.getComuneById(indirizzoAggiornato.getComune().getId());
         if (comune == null) {
             throw new BadRequestException("Comune non trovato con ID: " + indirizzoAggiornato.getComune().getId());
         }
