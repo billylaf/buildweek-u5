@@ -4,16 +4,57 @@ import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team4.buildweek_u5.entities.Provincia;
+import team4.buildweek_u5.exceptions.BadRequestException;
+import team4.buildweek_u5.exceptions.NotFoundException;
 import team4.buildweek_u5.repositories.ProvinciaRepository;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProvinceService {
+public class ProvinciaService {
     private final ProvinciaRepository provinciaRepository;
+
+    public Provincia createProvincia(String sigla, String nome, String regione) {
+
+        if (provinciaRepository.findBySigla(sigla).isPresent())
+            throw new BadRequestException("Esiste già una provincia con questa sigla");
+
+        Provincia p = new Provincia();
+        p.setSigla(sigla);
+        p.setNome(nome);
+        p.setRegione(regione);
+
+        return provinciaRepository.save(p);
+    }
+
+    public List<Provincia> getAllProvince() {
+        return provinciaRepository.findAll();
+    }
+
+    public Provincia getProvinciaById(Long id) {
+        return provinciaRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Provincia non trovata: " + id));
+    }
+
+    public Provincia updateProvincia(Long id, String sigla, String nome, String regione) {
+
+        Provincia p = getProvinciaById(id);
+
+        p.setSigla(sigla);
+        p.setNome(nome);
+        p.setRegione(regione);
+
+        return provinciaRepository.save(p);
+    }
+
+    public void deleteProvincia(Long id) {
+        Provincia p = getProvinciaById(id);
+        provinciaRepository.delete(p);
+    }
 
     public void importaProvince(Resource file) throws Exception {
 
