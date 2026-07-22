@@ -13,7 +13,6 @@ import team4.buildweek_u5.recordsDTO.RegistrazioneDTO;
 import team4.buildweek_u5.repositories.RuoloRepository;
 import team4.buildweek_u5.repositories.UtenteRepository;
 
-import javax.naming.AuthenticationException;
 import java.util.List;
 
 @Service
@@ -35,16 +34,35 @@ public class UtenteService {
             throw new RuntimeException("Username già in uso!");
         }
 
-        Utente nuovoUtente = new Utente(body.username(),
+        Ruolo ruoloUser = ruoloRepository.findByRuolo("ROLE_USER")
+                .orElseGet(() -> {
+                    Ruolo nuovoRuolo = new Ruolo("ROLE_USER");
+                    return ruoloRepository.save(nuovoRuolo);
+                });
+
+        Ruolo ruoloAdmin = ruoloRepository.findByRuolo("ROLE_ADMIN")
+                .orElseGet(() -> {
+                    Ruolo nuovoRuolo = new Ruolo("ROLE_ADMIN");
+                    return ruoloRepository.save(nuovoRuolo);
+                });
+
+        Utente nuovoUtente = new Utente(
+                body.username(),
                 body.nome(),
                 body.cognome(),
                 body.email(),
-                bCrypt.encode(body.password()));
+                bCrypt.encode(body.password())
+        );
 
-        Ruolo ruoloUser = ruoloRepository.findByRuolo("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Errore: Ruolo ROLE_USER non trovato nel Database!"));
+        String ruoloRichiesto = body.ruolo();
 
-        nuovoUtente.addRuolo(ruoloUser);
+        if (ruoloRichiesto != null && ruoloRichiesto.equalsIgnoreCase("ROLE_ADMIN")) {
+            nuovoUtente.addRuolo(ruoloUser);
+            nuovoUtente.addRuolo(ruoloAdmin);
+            System.out.println("Creato utente ADMIN: " + body.username());
+        } else {
+            nuovoUtente.addRuolo(ruoloUser);
+        }
 
         return utenteRepository.save(nuovoUtente);
     }
