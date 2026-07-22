@@ -5,15 +5,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import team4.buildweek_u5.services.ComuniService;
-import team4.buildweek_u5.services.ProvinceService;
+import team4.buildweek_u5.services.ComuneService;
+import team4.buildweek_u5.services.ProvinciaService;
 
 @Component
 @RequiredArgsConstructor
 public class CsvRunner implements CommandLineRunner {
 
-    private final ProvinceService ProvinceService;
-    private final ComuniService ComuniService;
+    private final ProvinciaService ProvinceService;
+    private final ComuneService ComuniService;
 
     @Override
     public void run(String... args) throws Exception {
