@@ -40,13 +40,13 @@ public class IndirizzoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Indirizzo createIndirizzo(@RequestBody @Valid Indirizzo indirizzo) {
         return this.indirizzoService.saveIndirizzo(indirizzo);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Indirizzo updateIndirizzo(@PathVariable Long id,
                                      @RequestBody @Valid Indirizzo indirizzo) {
         return this.indirizzoService.updateIndirizzo(id, indirizzo);
