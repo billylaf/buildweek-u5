@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import team4.buildweek_u5.entities.Cliente;
 import team4.buildweek_u5.entities.Fattura;
@@ -12,6 +13,7 @@ import team4.buildweek_u5.exceptions.BadRequestException;
 import team4.buildweek_u5.exceptions.NotFoundException;
 import team4.buildweek_u5.recordsDTO.FatturaDTO;
 import team4.buildweek_u5.repositories.FatturaRepository;
+import team4.buildweek_u5.specifications.FatturaSpecification;
 
 import java.time.LocalDate;
 
@@ -46,10 +48,38 @@ public class FatturaService {
         return fatturaRepository.save(fattura);
     }
 
-    // find all paginata ed ordinata
-    public Page<Fattura> findAll(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return fatturaRepository.findAll(pageable);
+    public Page<Fattura> findAll(
+            Long clienteId,
+            Long statoId,
+            LocalDate data,
+            Integer anno,
+            Double minImporto,
+            Double maxImporto,
+            int page, int size, String sortBy, String sortOrder) {
+
+        // Controllo di validità del business: l'importo minimo non può superare quello massimo
+        if (minImporto != null && maxImporto != null && minImporto > maxImporto) {
+            throw new BadRequestException("L'importo minimo non può essere maggiore di quello massimo!");
+        }
+
+        // Impostiamo la direzione dell'ordinamento (ASC per A-Z / 0-9, DESC per Z-A / 9-0)
+        Sort sort = sortOrder.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        // Creiamo l'oggetto Pageable che contiene il numero di pagina, la dimensione e l'ordinamento
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Uniamo insieme tutte le regole di filtro definite nella classe FatturaSpecification.
+        // Se un parametro è null, Spring lo ignorerà automaticamente nella query SQL generata.
+        Specification<Fattura> spec = Specification.where(FatturaSpecification.hasClienteId(clienteId))
+                .and(FatturaSpecification.hasStatoId(statoId))
+                .and(FatturaSpecification.hasDataFattura(data))
+                .and(FatturaSpecification.hasAnno(anno))
+                .and(FatturaSpecification.importoBetween(minImporto, maxImporto));
+
+        // Eseguiamo la query combinata sul database
+        return fatturaRepository.findAll(spec, pageable);
     }
 
     // findbyid
@@ -87,31 +117,32 @@ public class FatturaService {
         fatturaRepository.delete(fattura);
     }
 
-    // DERIVED QUERY PER METODI DI FILTRO SPECIFICI -----------------
-
-    public Page<Fattura> filterByCliente(Long clienteId, int page, int size) {
-        clienteService.findById(clienteId); // verifico prima se il cliente esiste
-        return fatturaRepository.findByClienteId(clienteId, PageRequest.of(page, size));
-    }
-
-    public Page<Fattura> filterByStato(Long statoId, int page, int size) {
-        statoFatturaService.findById(statoId); // verifico prima se lo stato esiste
-        return fatturaRepository.findByStatoFatturaId(statoId, PageRequest.of(page, size));
-    }
-
-    public Page<Fattura> filterByData(LocalDate data, int page, int size) {
-        return fatturaRepository.findByDataFattura(data, PageRequest.of(page, size));
-    }
-
-    public Page<Fattura> filterByAnno(int anno, int page, int size) {
-        return fatturaRepository.findByAnno(anno, PageRequest.of(page, size));
-    }
-
-    // filtro per range importi con controllo di validità
-    public Page<Fattura> filterByRangeImporti(Double min, Double max, int page, int size) {
-        if (min > max) {
-            throw new BadRequestException("L'importo minimo non può essere maggiore di quello massimo!"); // errore se importo min > max nella ricerca
-        }
-        return fatturaRepository.findByImportoBetween(min, max, PageRequest.of(page, size));
-    }
+    // SOSTITUITO CON JPASPECIFICATIONS
+//    // DERIVED QUERY PER METODI DI FILTRO SPECIFICI -----------------
+//
+//    public Page<Fattura> filterByCliente(Long clienteId, int page, int size) {
+//        clienteService.findById(clienteId); // verifico prima se il cliente esiste
+//        return fatturaRepository.findByClienteId(clienteId, PageRequest.of(page, size));
+//    }
+//
+//    public Page<Fattura> filterByStato(Long statoId, int page, int size) {
+//        statoFatturaService.findById(statoId); // verifico prima se lo stato esiste
+//        return fatturaRepository.findByStatoFatturaId(statoId, PageRequest.of(page, size));
+//    }
+//
+//    public Page<Fattura> filterByData(LocalDate data, int page, int size) {
+//        return fatturaRepository.findByDataFattura(data, PageRequest.of(page, size));
+//    }
+//
+//    public Page<Fattura> filterByAnno(int anno, int page, int size) {
+//        return fatturaRepository.findByAnno(anno, PageRequest.of(page, size));
+//    }
+//
+//    // filtro per range importi con controllo di validità
+//    public Page<Fattura> filterByRangeImporti(Double min, Double max, int page, int size) {
+//        if (min > max) {
+//            throw new BadRequestException("L'importo minimo non può essere maggiore di quello massimo!"); // errore se importo min > max nella ricerca
+//        }
+//        return fatturaRepository.findByImportoBetween(min, max, PageRequest.of(page, size));
+//    }
 }

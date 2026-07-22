@@ -27,14 +27,23 @@ public class ClienteController {
         return clienteService.save(body);
     }
 
-    // GET /clienti?page=0&size=10&sortBy=sedeLegale.provincia&sortOrder=asc
+    // GET UNICA /clienti con filtri paginazione e ordinamento opzionali
+    // GET /clienti
+    // I parametri con @RequestParam(required = false) dicono a Spring:
+    // "L'utente può passare questo parametro nell'URL, ma se non lo mette, lascia il valore a null".
     @GetMapping
     public Page<Cliente> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "ragioneSociale") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortOrder) {
-        return clienteService.findAll(page, size, sortBy, sortOrder);
+            @RequestParam(required = false) Double minFatturato,        // es. /clienti?minFatturato=50000
+            @RequestParam(required = false) LocalDate dataInserimento,  // es. /clienti?dataInserimento=2026-01-15
+            @RequestParam(required = false) LocalDate dataUltimoContatto,
+            @RequestParam(required = false) String nome,                // es. /clienti?nome=Tech
+            @RequestParam(defaultValue = "0") int page,                // Numero di pagina (parte da 0)
+            @RequestParam(defaultValue = "10") int size,               // Quanti elementi mostrare per pagina
+            @RequestParam(defaultValue = "ragioneSociale") String sortBy, // Campo su cui ordinare (es. sedeLegale.provincia)
+            @RequestParam(defaultValue = "asc") String sortOrder) {    // Direzione: "asc" o "desc"
+
+        // Passiamo tutti i parametri ricevuti al Service che costruirà la query
+        return clienteService.findAll(minFatturato, dataInserimento, dataUltimoContatto, nome, page, size, sortBy, sortOrder);
     }
 
     // GET /clienti/{id} findbyid
@@ -68,41 +77,42 @@ public class ClienteController {
         clienteService.delete(id);
     }
 
-    // ------------------ENDPOINT PER I FILTRI CUSTOM
-
-    // GET /clienti/filtro-fatturato?minFatturato=50000
-    @GetMapping("/filtro-fatturato")
-    public Page<Cliente> filterByFatturato(
-            @RequestParam Double minFatturato,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return clienteService.filterByFatturato(minFatturato, page, size);
-    }
-
-    // GET /clienti/filtro-data-inserimento?data=2026-01-15
-    @GetMapping("/filtro-data-inserimento")
-    public Page<Cliente> filterByDataInserimento(
-            @RequestParam LocalDate data,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return clienteService.filterByDataInserimento(data, page, size);
-    }
-
-    // GET /clienti/filtro-data-ultimo-contatto?data=2026-03-20
-    @GetMapping("/filtro-data-ultimo-contatto")
-    public Page<Cliente> filterByDataUltimoContatto(
-            @RequestParam LocalDate data,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return clienteService.filterByDataUltimoContatto(data, page, size);
-    }
-
-    // GET /clienti/filtro-nome?nome=Anto
-    @GetMapping("/filtro-nome")
-    public Page<Cliente> filterByParteNome(
-            @RequestParam String nome,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return clienteService.filterByParteNome(nome, page, size);
-    }
+    //SOSTITUITO CON UN UNICA GET ALL CON PARAMETRI OPZIONALI
+//    // ------------------ENDPOINT PER I FILTRI CUSTOM
+//
+//    // GET /clienti/filtro-fatturato?minFatturato=50000
+//    @GetMapping("/filtro-fatturato")
+//    public Page<Cliente> filterByFatturato(
+//            @RequestParam Double minFatturato,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return clienteService.filterByFatturato(minFatturato, page, size);
+//    }
+//
+//    // GET /clienti/filtro-data-inserimento?data=2026-01-15
+//    @GetMapping("/filtro-data-inserimento")
+//    public Page<Cliente> filterByDataInserimento(
+//            @RequestParam LocalDate data,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return clienteService.filterByDataInserimento(data, page, size);
+//    }
+//
+//    // GET /clienti/filtro-data-ultimo-contatto?data=2026-03-20
+//    @GetMapping("/filtro-data-ultimo-contatto")
+//    public Page<Cliente> filterByDataUltimoContatto(
+//            @RequestParam LocalDate data,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return clienteService.filterByDataUltimoContatto(data, page, size);
+//    }
+//
+//    // GET /clienti/filtro-nome?nome=Anto
+//    @GetMapping("/filtro-nome")
+//    public Page<Cliente> filterByParteNome(
+//            @RequestParam String nome,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return clienteService.filterByParteNome(nome, page, size);
+//    }
 }
