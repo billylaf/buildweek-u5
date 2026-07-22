@@ -26,7 +26,7 @@ public class Utente implements UserDetails {
     @Column(name = "avatar_pic")
     private String avatar;
 
-    @OneToMany(mappedBy = "utente", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UtenteRuolo> ruoli = new ArrayList<>();
 
     protected Utente() {
