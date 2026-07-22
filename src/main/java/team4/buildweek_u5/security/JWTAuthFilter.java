@@ -42,7 +42,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         jwtTools.verifyToken(accessToken);
 
         // cerco l'utente con il metodo per estrarre l'id dal token
-        Long utenteId = Long.parseLong(jwtTools.extractIdFromToken(accessToken));
+        String utenteId = (jwtTools.extractIdFromToken(accessToken));
         Utente authenticatedUser = utenteService.findById(utenteId);
 
         // faccio viaggiare l'utente sempre con il suo token per renderlo loggato
@@ -52,7 +52,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                 authenticatedUser.getAuthorities()
         );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext()
+                .setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }

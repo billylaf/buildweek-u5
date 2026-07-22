@@ -12,27 +12,32 @@ public class UtenteRuolo {
     private long id;
     @ManyToOne
     @JoinColumn(name = "username_utente")
-    private Utente usernameUtente;
+    private Utente utente;
     @ManyToOne
     @JoinColumn(name = "nome_ruolo")
-    private String ruolo;
+    private Ruolo ruolo;
 
     protected UtenteRuolo() {
     }
 
-    public UtenteRuolo(Utente usernameUtente) {
-        this.usernameUtente = usernameUtente;
+    public UtenteRuolo(Utente utente, Ruolo ruolo) {
+        this.utente = utente;
+        this.ruolo = ruolo;
     }
 
-    public void setRuolo(String ruolo) {
+    public void setRuolo(Ruolo ruolo) {
         this.ruolo = ruolo;
+    }
+
+    public Ruolo getRuolo() {
+        return ruolo;
     }
 
     @Override
     public String toString() {
         return "UtenteRuolo{" +
                 "id=" + id +
-                ", usernameUtente=" + usernameUtente +
+                ", usernameUtente=" + utente +
                 ", ruolo=" + ruolo +
                 '}';
     }
