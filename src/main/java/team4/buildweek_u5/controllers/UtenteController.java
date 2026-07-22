@@ -6,14 +6,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import team4.buildweek_u5.entities.Utente;
-import team4.buildweek_u5.recordsDTO.LoginPayloadDTO;
-import team4.buildweek_u5.recordsDTO.ModificaRuoliDTO;
-import team4.buildweek_u5.recordsDTO.RegistrazioneDTO;
-import team4.buildweek_u5.recordsDTO.RegistrazioneResponseDTO;
+import team4.buildweek_u5.recordsDTO.*;
 import team4.buildweek_u5.services.UtenteService;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -69,6 +68,12 @@ public class UtenteController {
             @RequestBody @Valid ModificaRuoliDTO body) {
 
         return utenteService.aggiornaRuoliUtente(username, body);
+    }
+
+    @PatchMapping("/me/avatar")
+    public void updateAvatar(@AuthenticationPrincipal Utente currentUtente,
+                             @RequestParam("avatar") MultipartFile file) {
+        this.utenteService.updateAvatar(currentUtente.getUsername(), file);
     }
 
 }

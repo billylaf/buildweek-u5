@@ -1,10 +1,14 @@
 package team4.buildweek_u5.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import team4.buildweek_u5.entities.Ruolo;
 import team4.buildweek_u5.entities.Utente;
+import team4.buildweek_u5.exceptions.BadRequestException;
 import team4.buildweek_u5.exceptions.NotFoundException;
 import team4.buildweek_u5.exceptions.UnauthorizedException;
 import team4.buildweek_u5.recordsDTO.LoginPayloadDTO;
@@ -13,7 +17,11 @@ import team4.buildweek_u5.recordsDTO.RegistrazioneDTO;
 import team4.buildweek_u5.repositories.RuoloRepository;
 import team4.buildweek_u5.repositories.UtenteRepository;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class UtenteService {
@@ -21,11 +29,14 @@ public class UtenteService {
     private final UtenteRepository utenteRepository;
     private final RuoloRepository ruoloRepository;
     private final PasswordEncoder bCrypt;
+    private final Cloudinary fileUploader;
 
-    public UtenteService(UtenteRepository utenteRepository, RuoloRepository ruoloRepository, PasswordEncoder bCrypt) {
+    public UtenteService(UtenteRepository utenteRepository, RuoloRepository ruoloRepository, PasswordEncoder bCrypt,
+                         Cloudinary fileUploader) {
         this.utenteRepository = utenteRepository;
         this.ruoloRepository = ruoloRepository;
         this.bCrypt = bCrypt;
+        this.fileUploader = fileUploader;
     }
 
     @Transactional
@@ -147,5 +158,25 @@ public class UtenteService {
         }
 
         return utenteRepository.save(utente);
+    }
+
+    public void updateAvatar(String username, MultipartFile file) {
+        if (file.getSize() >= 10485760) throw new BadRequestException("File size can't be more than 10MB");
+        if (!(Objects.equals(file.getContentType(), "image/jpeg") || Objects.equals(file.getContentType(),
+                "image/gif") || Objects.equals(file.getContentType(), "image/png") || Objects.equals(
+                file.getContentType(), "image/webp")))
+            throw new BadRequestException("File must be an img");
+
+        Utente utenteFromDB = findById(username);
+
+        try {
+            Map result = fileUploader.uploader()
+                    .upload(file.getBytes(), ObjectUtils.emptyMap());
+            String url = (String) result.get("secure_url");
+            utenteFromDB.setAvatar(url);
+            this.utenteRepository.save(utenteFromDB);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
