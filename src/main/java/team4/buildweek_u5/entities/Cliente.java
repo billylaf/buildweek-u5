@@ -63,11 +63,11 @@ public class Cliente {
     @Column(name = "tipo_cliente")
     private TipoCliente tipoCliente;
 
-    @OneToOne
-    @JoinColumn(name = "sede_legale_id")
-    private Indirizzo sedeLegale;
-
-    @OneToOne
-    @JoinColumn(name = "sede_operativa_id")
-    private Indirizzo sedeOperativa;
+//    @OneToOne
+//    @JoinColumn(name = "sede_legale_id")
+//    private Indirizzo sedeLegale;
+//
+//    @OneToOne
+//    @JoinColumn(name = "sede_operativa_id")
+//    private Indirizzo sedeOperativa;
 }

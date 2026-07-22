@@ -41,9 +41,9 @@ public record ClienteDTO(
         String logoAziendale,
 
         @NotNull(message = "Il tipo di cliente è obbligatorio")
-        TipoCliente tipoCliente,
+        TipoCliente tipoCliente
 
-        Long sedeLegaleId,
-        Long sedeOperativaId
+//        Long sedeLegaleId,
+//        Long sedeOperativaId
 ) {
 }
