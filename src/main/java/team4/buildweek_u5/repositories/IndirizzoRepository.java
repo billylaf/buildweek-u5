@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface IndirizzoRepository extends JpaRepository<Indirizzo, Long> {
 
-    List<Indirizzo> findbyClienteId(long clienteId);
+    List<Indirizzo> findByClienteId(long clienteId);
 
     Optional<Indirizzo> findByClienteIdAndTipoIndirizzo(Long clienteId, TipoIndirizzo tipo);
 
