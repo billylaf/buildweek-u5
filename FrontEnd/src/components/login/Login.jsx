@@ -11,39 +11,64 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    const res = await fetch("http://localhost:5001/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    })
+
+    const data = await res.json()
+    console.log("Login:", data)
   }
 
   return (
-    <div className="login-container">
-      <form className="login-box" onSubmit={handleSubmit}>
-        <h2>Accedi</h2>
+    <form className="form" onSubmit={handleSubmit}>
+      <p id="heading">Login</p>
 
+      <div className="field">
         <input
-          type="email"
           name="email"
+          type="email"
           placeholder="Email"
+          className="input-field"
           value={form.email}
           onChange={handleChange}
           required
         />
+      </div>
 
+      <div className="field">
         <input
-          type="password"
           name="password"
+          type="password"
           placeholder="Password"
+          className="input-field"
           value={form.password}
           onChange={handleChange}
           required
         />
+      </div>
 
-        <button type="submit">Login</button>
+      <div className="btn">
+        <button className="button1" type="submit">
+          Login
+        </button>
 
-        <p className="signup-link">
-          Non hai un account? <a href="/signup">Registrati</a>
-        </p>
-      </form>
-    </div>
+        <button
+          className="button2"
+          type="button"
+          onClick={() => (window.location.href = "/signup")}
+        >
+          Sign Up
+        </button>
+      </div>
+
+      <button className="button3" type="button">
+        Forgot Password
+      </button>
+    </form>
   )
 }
