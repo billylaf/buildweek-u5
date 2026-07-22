@@ -4,11 +4,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import team4.buildweek_u5.entities.Cliente;
 import team4.buildweek_u5.exceptions.NotFoundException;
 import team4.buildweek_u5.recordsDTO.ClienteDTO;
 import team4.buildweek_u5.repositories.ClienteRepository;
+import team4.buildweek_u5.specifications.ClienteSpecification;
 
 import java.time.LocalDate;
 
@@ -29,14 +31,32 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    // ricerca impaginata con ordinamento
-    public Page<Cliente> findAll(int page, int size, String sortBy, String sortOrder) {
+    // UNICO METODO FIND ALL CON SPECIFICATIONS DINAMICHE
+    // Questo metodo riceve tutti i possibili parametri di ricerca inviati dall'utente (tutti opzionali).
+    public Page<Cliente> findAll(
+            Double minFatturato,
+            LocalDate dataInserimento,
+            LocalDate dataUltimoContatto,
+            String nome,
+            int page, int size, String sortBy, String sortOrder) {
+
+        // Configurazione dell'ordinamento (Ascendente A-Z o Discendente Z-A)
         Sort sort = sortOrder.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
+        // Creazione dell'oggetto per la paginazione
         Pageable pageable = PageRequest.of(page, size, sort);
-        return clienteRepository.findAll(pageable);
+
+        // Unione dinamica di tutte le regole di filtro con l'operatore "AND".
+        // Spring ignorerà automaticamente tutte le regole che ritornano "null".
+        Specification<Cliente> spec = Specification.where(ClienteSpecification.hasMinFatturato(minFatturato))
+                .and(ClienteSpecification.hasDataInserimento(dataInserimento))
+                .and(ClienteSpecification.hasDataUltimoContatto(dataUltimoContatto))
+                .and(ClienteSpecification.nomeContains(nome));
+
+        // Esecuzione della query finale paginata e filtrata sul Database
+        return clienteRepository.findAll(spec, pageable);
     }
 
     // find by id
@@ -72,23 +92,24 @@ public class ClienteService {
         clienteRepository.delete(cliente);
     }
 
-    // DERIVED QUERY PER METODI DI FILTRO SPECIFICI -----------------
-
-    public Page<Cliente> filterByFatturato(Double fatturato, int page, int size) {
-        return clienteRepository.findByFatturatoAnnualeGreaterThanEqual(fatturato, PageRequest.of(page, size));
-    }
-
-    public Page<Cliente> filterByDataInserimento(LocalDate data, int page, int size) {
-        return clienteRepository.findByDataInserimento(data, PageRequest.of(page, size));
-    }
-
-    public Page<Cliente> filterByDataUltimoContatto(LocalDate data, int page, int size) {
-        return clienteRepository.findByDataUltimoContatto(data, PageRequest.of(page, size));
-    }
-
-    public Page<Cliente> filterByParteNome(String nome, int page, int size) {
-        return clienteRepository.findByRagioneSocialeContainingIgnoreCase(nome, PageRequest.of(page, size));
-    }
+    //SOSTITUITO CON JPASPECIFICATIONS
+//    // DERIVED QUERY PER METODI DI FILTRO SPECIFICI -----------------
+//
+//    public Page<Cliente> filterByFatturato(Double fatturato, int page, int size) {
+//        return clienteRepository.findByFatturatoAnnualeGreaterThanEqual(fatturato, PageRequest.of(page, size));
+//    }
+//
+//    public Page<Cliente> filterByDataInserimento(LocalDate data, int page, int size) {
+//        return clienteRepository.findByDataInserimento(data, PageRequest.of(page, size));
+//    }
+//
+//    public Page<Cliente> filterByDataUltimoContatto(LocalDate data, int page, int size) {
+//        return clienteRepository.findByDataUltimoContatto(data, PageRequest.of(page, size));
+//    }
+//
+//    public Page<Cliente> filterByParteNome(String nome, int page, int size) {
+//        return clienteRepository.findByRagioneSocialeContainingIgnoreCase(nome, PageRequest.of(page, size));
+//    }
 
     // Metodo di utility helper per la mappatura dei campi
     private void mappaDtoSuEntita(Cliente cliente, ClienteDTO body) {
