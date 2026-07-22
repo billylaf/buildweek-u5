@@ -26,7 +26,7 @@ public class Utente implements UserDetails {
     @Column(name = "avatar_pic")
     private String avatar;
 
-    @OneToMany(mappedBy = "utente")
+    @OneToMany(mappedBy = "utente", fetch = FetchType.EAGER)
     private List<UtenteRuolo> ruoli = new ArrayList<>();
 
     protected Utente() {
@@ -65,6 +65,10 @@ public class Utente implements UserDetails {
         return this.username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public List<UtenteRuolo> getRuoli() {
         return ruoli;
     }
@@ -81,16 +85,12 @@ public class Utente implements UserDetails {
         this.email = email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getAvatar() {
+        return avatar;
     }
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
-    }
-
-    public String getAvatar() {
-        return avatar;
     }
 
     @Override
