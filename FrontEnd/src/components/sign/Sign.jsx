@@ -42,10 +42,14 @@ export default function Sign() {
       });
 
       if (res.ok) {
-        alert("Registrazione completata con successo! Ora puoi effettuare il login.");
+        alert(
+          "Registrazione completata con successo! Ora puoi effettuare il login.",
+        );
         navigate("/"); // Portiamo l'utente al Login
       } else {
-        alert("Errore durante la registrazione. Riprova con un altro username o email.");
+        alert(
+          "Errore durante la registrazione. Riprova con un altro username o email.",
+        );
       }
     } catch (error) {
       console.error("Errore di rete:", error);
@@ -134,11 +138,7 @@ export default function Sign() {
           Create Account
         </button>
 
-        <button
-          className="button2"
-          type="button"
-          onClick={() => (window.location.href = "/")}
-        >
+        <button className="button2" type="button" onClick={() => navigate("/")}>
           Login
         </button>
       </div>
@@ -147,5 +147,5 @@ export default function Sign() {
         Forgot Password
       </button>
     </form>
-  )
+  );
 }

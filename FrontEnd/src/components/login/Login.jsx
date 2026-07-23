@@ -77,7 +77,7 @@ export default function Login() {
         <button
           className="button2"
           type="button"
-          onClick={() => (window.location.href = "/signup")}
+          onClick={() => navigate("/signup")}
         >
           Sign Up
         </button>
@@ -87,5 +87,5 @@ export default function Login() {
         Forgot Password
       </button>
     </form>
-  )
+  );
 }
