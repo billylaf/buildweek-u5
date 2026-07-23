@@ -1,5 +1,6 @@
-import { useState } from "react"
-import "./sign.css"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./sign.css";
 
 export default function Sign() {
   const [form, setForm] = useState({
@@ -10,36 +11,47 @@ export default function Sign() {
     password: "",
     confirm: "",
     ruolo: "USER",
-  })
+  });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (form.password !== form.confirm) {
-      console.log("Le password non coincidono")
-      return
+      alert("Le password non coincidono!");
+      return;
     }
 
-    const res = await fetch("http://localhost:8080/utenti/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: form.username,
-        nome: form.nome,
-        cognome: form.cognome,
-        email: form.email,
-        password: form.password,
-        ruolo: form.ruolo,
-      }),
-    })
+    try {
+      const res = await fetch("http://localhost:8080/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username,
+          nome: form.nome,
+          cognome: form.cognome,
+          email: form.email,
+          password: form.password,
+          ruolo: form.ruolo,
+        }),
+      });
 
-    const data = await res.json()
-    console.log("Registrazione:", data)
-  }
+      if (res.ok) {
+        alert("Registrazione completata con successo! Ora puoi effettuare il login.");
+        navigate("/"); // Portiamo l'utente al Login
+      } else {
+        alert("Errore durante la registrazione. Riprova con un altro username o email.");
+      }
+    } catch (error) {
+      console.error("Errore di rete:", error);
+      alert("Impossibile contattare il server.");
+    }
+  };
 
   return (
     <form className="form" onSubmit={handleSubmit}>
