@@ -42,50 +42,52 @@ export default function Login() {
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <p id="heading">Login</p>
+    <div className="login-container">
+      <form className="form" onSubmit={handleSubmit}>
+        <p id="heading">Login</p>
 
-      <div className="field">
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          className="input-field"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-      </div>
+        <div className="field">
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            className="input-field"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <div className="field">
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          className="input-field"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-      </div>
+        <div className="field">
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            className="input-field"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <div className="btn">
-        <button className="button1" type="submit">
-          Login
+        <div className="btn">
+          <button className="button1" type="submit">
+            Login
+          </button>
+
+          <button
+            className="button2"
+            type="button"
+            onClick={() => navigate("/signup")}
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <button className="button3" type="button">
+          Forgot Password
         </button>
-
-        <button
-          className="button2"
-          type="button"
-          onClick={() => navigate("/signup")}
-        >
-          Sign Up
-        </button>
-      </div>
-
-      <button className="button3" type="button">
-        Forgot Password
-      </button>
-    </form>
+      </form>
+    </div>
   );
 }
