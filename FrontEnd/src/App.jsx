@@ -16,7 +16,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Sign />} />
-        <Route path="/utenti" element={<AmministrazioneUtenti />} />
+        <Route path="/amministrazione" element={<AmministrazioneUtenti />} />
         {/* Pagina della Dashboard dopo il Login */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/clienti" element={<ListaClienti />} />

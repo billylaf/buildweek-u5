@@ -4,10 +4,10 @@ import ListaUtenti from "./ListaUtenti";
 
 const AmministrazioneUtenti = () => {
   return (
-    <Container>
+    <>
       <MyNavbar></MyNavbar>
       <ListaUtenti></ListaUtenti>
-    </Container>
+    </>
   );
 };
 
