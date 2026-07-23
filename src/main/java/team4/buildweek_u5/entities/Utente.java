@@ -2,6 +2,8 @@ package team4.buildweek_u5.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.Getter;
+
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +15,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "Utenti")
-@JsonIgnoreProperties({"accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled", "password"})
+@JsonIgnoreProperties({ "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled", "password" })
+@Getter
 public class Utente implements UserDetails {
 
     @Id
@@ -45,7 +48,6 @@ public class Utente implements UserDetails {
         UtenteRuolo utenteRuolo = new UtenteRuolo(this, ruolo);
         this.ruoli.add(utenteRuolo);
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

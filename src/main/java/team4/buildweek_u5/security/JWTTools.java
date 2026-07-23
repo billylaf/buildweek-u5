@@ -20,7 +20,9 @@ public class JWTTools {
 
     public String createToken(Utente utente) {
         return Jwts.builder()
-                .subject((utente.getUsername()))// stringhifizzo il long per settarlo come subject
+                .subject((utente.getUsername()))
+                // stringhifizzo il long per settarlo come subject
+                .claim("nome", utente.getNome())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 ore di scadenza
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
