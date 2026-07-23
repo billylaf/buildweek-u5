@@ -3,6 +3,7 @@ package team4.buildweek_u5.controllers;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import team4.buildweek_u5.entities.Fattura;
 import team4.buildweek_u5.recordsDTO.FatturaDTO;
@@ -23,6 +24,7 @@ public class FatturaController {
     // POST /fatture
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Fattura save(@RequestBody @Valid FatturaDTO body) {
         return fatturaService.save(body);
     }
@@ -31,6 +33,7 @@ public class FatturaController {
     // required = false: indica che l'utente NON è obbligato a passare il parametro nell'URL.
     // defaultValue: valore predefinito se l'utente non lo specifica.
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Page<Fattura> getAll(
             @RequestParam(required = false) Long clienteId,        // es. /fatture?clienteId=1
             @RequestParam(required = false) Long statoId,          // es. /fatture?statoId=2
@@ -48,24 +51,28 @@ public class FatturaController {
 
     // GET /fatture/{id} findbyid
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Fattura getById(@PathVariable Long id) {
         return fatturaService.findById(id);
     }
 
     // PUT /fatture/{id} modifica fattura
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Fattura update(@PathVariable Long id, @RequestBody @Valid FatturaDTO body) {
         return fatturaService.update(id, body);
     }
 
     // PATCH /fatture/{id}/stato?statoId=2 cambia solo lo stato della fattura
     @PatchMapping("/{id}/stato")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Fattura patchStato(@PathVariable Long id, @RequestParam Long statoId) {
         return fatturaService.patchStatoFattura(id, statoId);
     }
 
     // DELETE /fatture/{id} deletebyid
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         fatturaService.delete(id);
