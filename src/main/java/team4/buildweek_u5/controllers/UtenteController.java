@@ -12,8 +12,6 @@ import team4.buildweek_u5.recordsDTO.*;
 import team4.buildweek_u5.services.UtenteService;
 
 import java.util.List;
-import java.util.UUID;
-
 
 @RestController
 @RequestMapping("/utenti")

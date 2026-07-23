@@ -3,6 +3,7 @@ import Login from "./components/login/Login";
 import Sign from "./components/sign/Sign";
 import CustomNavbar from "./components/navbar/CustomNavbar";
 import "./Style.css";
+import AmministrazioneUtenti from "./components/amministratzione_utenti/AmministrazioneUtenti";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Sign />} />
+        <Route path="/utenti" element={<AmministrazioneUtenti />} />
       </Routes>
     </BrowserRouter>
   );
