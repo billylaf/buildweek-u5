@@ -49,8 +49,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 authenticatedUser,
                 null,
-                authenticatedUser.getAuthorities()
-        );
+                authenticatedUser.getAuthorities());
 
         SecurityContextHolder.getContext()
                 .setAuthentication(authentication);
@@ -60,7 +59,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return new AntPathMatcher().match("/auth/**", request.getServletPath()) ||
+        return request.getMethod().equalsIgnoreCase("OPTIONS") ||
+                new AntPathMatcher().match("/auth/**", request.getServletPath()) ||
                 new AntPathMatcher().match("/utenti/register", request.getServletPath());
     }
 }
