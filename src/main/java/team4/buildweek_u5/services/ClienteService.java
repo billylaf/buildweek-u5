@@ -32,7 +32,8 @@ public class ClienteService {
     }
 
     // UNICO METODO FIND ALL CON SPECIFICATIONS DINAMICHE
-    // Questo metodo riceve tutti i possibili parametri di ricerca inviati dall'utente (tutti opzionali).
+    // Questo metodo riceve tutti i possibili parametri di ricerca inviati
+    // dall'utente (tutti opzionali).
     public Page<Cliente> findAll(
             Double minFatturato,
             LocalDate dataInserimento,
@@ -92,26 +93,32 @@ public class ClienteService {
         clienteRepository.delete(cliente);
     }
 
-    //SOSTITUITO CON JPASPECIFICATIONS
-//    // DERIVED QUERY PER METODI DI FILTRO SPECIFICI -----------------
-//
-//    public Page<Cliente> filterByFatturato(Double fatturato, int page, int size) {
-//        return clienteRepository.findByFatturatoAnnualeGreaterThanEqual(fatturato, PageRequest.of(page, size));
-//    }
-//
-//    public Page<Cliente> filterByDataInserimento(LocalDate data, int page, int size) {
-//        return clienteRepository.findByDataInserimento(data, PageRequest.of(page, size));
-//    }
-//
-//    public Page<Cliente> filterByDataUltimoContatto(LocalDate data, int page, int size) {
-//        return clienteRepository.findByDataUltimoContatto(data, PageRequest.of(page, size));
-//    }
-//
-//    public Page<Cliente> filterByParteNome(String nome, int page, int size) {
-//        return clienteRepository.findByRagioneSocialeContainingIgnoreCase(nome, PageRequest.of(page, size));
-//    }
+    // SOSTITUITO CON JPASPECIFICATIONS
+    // // DERIVED QUERY PER METODI DI FILTRO SPECIFICI -----------------
+    //
+    // public Page<Cliente> filterByFatturato(Double fatturato, int page, int size)
+    // {
+    // return clienteRepository.findByFatturatoAnnualeGreaterThanEqual(fatturato,
+    // PageRequest.of(page, size));
+    // }
+    //
+    // public Page<Cliente> filterByDataInserimento(LocalDate data, int page, int
+    // size) {
+    // return clienteRepository.findByDataInserimento(data, PageRequest.of(page,
+    // size));
+    // }
+    //
+    // public Page<Cliente> filterByDataUltimoContatto(LocalDate data, int page, int
+    // size) {
+    // return clienteRepository.findByDataUltimoContatto(data, PageRequest.of(page,
+    // size));
+    // }
+    //
+    // public Page<Cliente> filterByParteNome(String nome, int page, int size) {
+    // return clienteRepository.findByRagioneSocialeContainingIgnoreCase(nome,
+    // PageRequest.of(page, size));
+    // }
 
-    // Metodo di utility helper per la mappatura dei campi
     private void mappaDtoSuEntita(Cliente cliente, ClienteDTO body) {
         cliente.setRagioneSociale(body.ragioneSociale());
         cliente.setPartitaIva(body.partitaIva());
@@ -124,7 +131,16 @@ public class ClienteService {
         cliente.setNomeContatto(body.nomeContatto());
         cliente.setCognomeContatto(body.cognomeContatto());
         cliente.setTelefonoContatto(body.telefonoContatto());
-        cliente.setLogoAziendale(body.logoAziendale());
+
+        // GESTIONE LOGO AUTOMATICO CON INIZIALI
+        if (body.logoAziendale() == null || body.logoAziendale().isBlank() || body.logoAziendale().contains("picsum")) {
+            // Sostituisce gli spazi con + per l'URL
+            String nomeFormattato = body.ragioneSociale().trim().replace(" ", "+");
+            cliente.setLogoAziendale("https://ui-avatars.com/api/?name=" + nomeFormattato + "&background=random");
+        } else {
+            cliente.setLogoAziendale(body.logoAziendale());
+        }
+
         cliente.setTipoCliente(body.tipoCliente());
     }
 }

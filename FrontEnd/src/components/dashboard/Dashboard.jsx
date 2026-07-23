@@ -11,22 +11,36 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
 
-  // Quanti elementi mostrare nelle tabelle parte da 5
   const [sizeClienti, setSizeClienti] = useState(5);
   const [sizeFatture, setSizeFatture] = useState(5);
 
+  // Funzione per estrarre le iniziali dalla Ragione Sociale o Nome
+  const getIniziali = (nome) => {
+    if (!nome) return "CL";
+    const parole = nome.trim().split(" ").filter(Boolean);
+    if (parole.length === 1) {
+      return parole[0].substring(0, 2).toUpperCase();
+    }
+    return (parole[0][0] + parole[1][0]).toUpperCase();
+  };
+
   useEffect(() => {
-    // Estraiamo lo username dal Token JWT salvato nel browser
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
-        setUsername(payload.sub || "Utente");
+
+        const nomeUtente =
+          payload.nome ||
+          payload.nomeCompleto ||
+          payload.name ||
+          payload.given_name ||
+          localStorage.getItem("nome") ||
+          payload.sub;
+
+        setUsername(nomeUtente);
       } catch (error) {
-        console.error(
-          "Errore durante la lettura dello username dal token",
-          error,
-        );
+        console.error("Errore durante la lettura del token", error);
       }
     }
 
@@ -47,13 +61,11 @@ export default function Dashboard() {
     };
 
     try {
-      // Chiamata Clienti con il limite dinamico limitC
       const resClienti = await fetch(
         `http://localhost:8080/clienti?page=0&size=${limitC}&sortBy=dataInserimento&sortOrder=desc`,
         { headers },
       );
 
-      // Chiamata Fatture con il limite dinamico limitF
       const resFatture = await fetch(
         `http://localhost:8080/fatture?page=0&size=${limitF}&sortBy=dataFattura&sortOrder=desc`,
         { headers },
@@ -69,8 +81,8 @@ export default function Dashboard() {
         setUltimeFatture(dataFatture.content || []);
         setTotaleFatture(dataFatture.totalElements || 0);
 
-        const sommaFatturato = (dataClienti.content || []).reduce(
-          (acc, c) => acc + (c.fatturatoAnnuale || 0),
+        const sommaFatturato = (dataFatture.content || []).reduce(
+          (acc, f) => acc + (f.importo || 0),
           0,
         );
         setTotaleFatturato(sommaFatturato);
@@ -90,7 +102,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* 1. Nome utente accanto al Benvenuto */}
+      {/* Nome utente di benvenuto */}
       <h2 className="welcome-title">
         Benvenuto{username ? `, ${username}` : ""}! 👋
       </h2>
@@ -148,27 +160,16 @@ export default function Dashboard() {
                 nuoviClienti.map((cliente) => (
                   <tr key={cliente.id}>
                     <td className="company-cell">
-                      {/* Mostra Avatar/Logo se presente, altrimenti setto icona di default */}
-                      {cliente.logoAziendale ||
-                      cliente.logo ||
-                      cliente.avatar ? (
+                      {cliente.logoAziendale ? (
                         <img
-                          src={
-                            cliente.logoAziendale ||
-                            cliente.logo ||
-                            cliente.avatar
-                          }
+                          src={cliente.logoAziendale}
                           alt={cliente.ragioneSociale}
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                            marginRight: "10px",
-                          }}
+                          className="avatar-img"
                         />
                       ) : (
-                        <span className="building-icon">🏢</span>
+                        <div className="avatar-initials">
+                          {getIniziali(cliente.ragioneSociale)}
+                        </div>
                       )}
                       <strong>{cliente.ragioneSociale}</strong>
                     </td>
@@ -185,7 +186,6 @@ export default function Dashboard() {
             </tbody>
           </table>
 
-          {/* Pulsante per mostrare altri clienti */}
           <div className="table-footer">
             {sizeClienti < totaleClienti ? (
               <button
@@ -219,29 +219,34 @@ export default function Dashboard() {
           <table className="custom-table">
             <tbody>
               {ultimeFatture.length > 0 ? (
-                ultimeFatture.map((fattura) => (
-                  <tr key={fattura.id}>
-                    <td>
-                      <strong>N° {fattura.numeroFattura}</strong>
-                    </td>
-                    <td>{fattura.cliente?.ragioneSociale || "Cliente N/D"}</td>
-                    <td className="fw-bold">
-                      €{" "}
-                      {fattura.importo?.toLocaleString("it-IT", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </td>
-                    <td>
-                      <span
-                        className={`status-badge status-${
-                          fattura.statoFattura?.nome?.toLowerCase() || "default"
-                        }`}
-                      >
-                        {fattura.statoFattura?.nome || "In lavorazione"}
-                      </span>
-                    </td>
-                  </tr>
-                ))
+                ultimeFatture.map((fattura) => {
+                  const rawStatus = fattura.statoFattura?.nome || "";
+                  const statusClass = rawStatus.toLowerCase().replace(" ", "_");
+                  const statusText =
+                    rawStatus.replace("_", " ") || "In lavorazione";
+
+                  return (
+                    <tr key={fattura.id}>
+                      <td>
+                        <strong>N° {fattura.numeroFattura}</strong>
+                      </td>
+                      <td>
+                        {fattura.cliente?.ragioneSociale || "Cliente N/D"}
+                      </td>
+                      <td className="fw-bold">
+                        €{" "}
+                        {fattura.importo?.toLocaleString("it-IT", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td>
+                        <span className={`status-badge status-${statusClass}`}>
+                          {statusText}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan="4">Nessuna fattura trovata.</td>
@@ -250,7 +255,6 @@ export default function Dashboard() {
             </tbody>
           </table>
 
-          {/* Pulsante per mostrare altre fatture */}
           <div className="table-footer">
             {sizeFatture < totaleFatture ? (
               <button

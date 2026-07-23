@@ -40,10 +40,18 @@
   border-left: 5px solid #ccc;
 }
 
-.kpi-card.blue { border-left-color: #0d6efd; }
-.kpi-card.green { border-left-color: #198754; }
-.kpi-card.yellow { border-left-color: #ffc107; }
-.kpi-card.red { border-left-color: #dc3545; }
+.kpi-card.blue {
+  border-left-color: #0d6efd;
+}
+.kpi-card.green {
+  border-left-color: #198754;
+}
+.kpi-card.yellow {
+  border-left-color: #ffc107;
+}
+.kpi-card.red {
+  border-left-color: #dc3545;
+}
 
 .kpi-icon {
   font-size: 2rem;
@@ -134,31 +142,70 @@
   text-decoration: underline;
 }
 
-/* Badge Stato Fatture */
+/* Badge generico per lo stato */
 .status-badge {
   padding: 4px 10px;
   border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-transform: capitalize;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: inline-block;
+  text-transform: uppercase;
 }
 
+/* Verde per PAGATA */
 .status-pagata {
   background-color: #d1e7dd;
   color: #0f5132;
 }
 
-.status-inviata {
-  background-color: #cff4fc;
-  color: #055160;
+/* Rosso per NON_PAGATA */
+.status-non_pagata,
+.status-non-pagata {
+  background-color: #f8d7da;
+  color: #842029;
 }
 
-.status-scadenza {
+/* Arancione per IN_ATTESA */
+.status-in_attesa,
+.status-in-attesa {
   background-color: #fff3cd;
   color: #664d03;
 }
 
+/* Grigio di default */
 .status-default {
   background-color: #e2e3e5;
   color: #41464b;
+}
+
+/* Allineamento della cella cliente */
+.company-cell {
+  display: flex;
+  align-items: center;
+}
+
+/* Cerchietto tondo con le iniziali */
+.avatar-initials {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-right: 12px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
 }
