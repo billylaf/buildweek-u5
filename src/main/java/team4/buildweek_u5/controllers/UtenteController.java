@@ -26,6 +26,7 @@ public class UtenteController {
 
 
     @PostMapping("/register")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public RegistrazioneResponseDTO createAccount(@RequestBody @Validated RegistrazioneDTO body) {
         return new RegistrazioneResponseDTO(this.utenteService.registraUtente(body)

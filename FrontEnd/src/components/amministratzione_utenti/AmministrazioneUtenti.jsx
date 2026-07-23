@@ -1,14 +1,33 @@
-import { Container } from "react-bootstrap";
+import { useState } from "react";
 import MyNavbar from "./MyNavbar";
-import ListaUtenti from "./ListaUtenti";
+import UserTable from "./ListaUtenti";
+import { Container } from "react-bootstrap";
 
-const AmministrazioneUtenti = () => {
+function AmministrazioneUtenti() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState("ALL");
+  const [refreshSignal, setRefreshSignal] = useState(0);
+
+  const handleUserCreated = () => {
+    setRefreshSignal((prev) => prev + 1);
+  };
+
   return (
     <>
-      <MyNavbar></MyNavbar>
-      <ListaUtenti></ListaUtenti>
+      <MyNavbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+        onUserCreated={handleUserCreated}
+      />
+      <UserTable
+        searchQuery={searchQuery}
+        selectedRole={selectedRole}
+        refreshSignal={refreshSignal}
+      />
     </>
   );
-};
+}
 
 export default AmministrazioneUtenti;
