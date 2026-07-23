@@ -1,34 +1,59 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import "./dashboard.css";
+import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+import "./dashboard.css"
 
 export default function Dashboard() {
-  const [totaleClienti, setTotaleClienti] = useState(0);
-  const [totaleFatture, setTotaleFatture] = useState(0);
-  const [totaleFatturato, setTotaleFatturato] = useState(0);
-  const [nuoviClienti, setNuoviClienti] = useState([]);
-  const [ultimeFatture, setUltimeFatture] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState("");
+  const [totaleClienti, setTotaleClienti] = useState(0)
+  const [totaleFatture, setTotaleFatture] = useState(0)
+  const [totaleFatturato, setTotaleFatturato] = useState(0)
+  const [nuoviClienti, setNuoviClienti] = useState([])
+  const [ultimeFatture, setUltimeFatture] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [username, setUsername] = useState("")
 
-  const [sizeClienti, setSizeClienti] = useState(5);
-  const [sizeFatture, setSizeFatture] = useState(5);
+  const [sizeClienti, setSizeClienti] = useState(5)
+  const [sizeFatture, setSizeFatture] = useState(5)
+
+  const statoColorMap = {
+    PAGATA: "success",
+    INSOLUTA: "danger",
+    NON_PAGATA: "danger",
+    ANNULLATA: "secondary",
+    IN_ATTESA: "secondary",
+    "IN RITARDO": "secondary",
+  }
+
+  const getStatusClass = (statusName) => {
+    if (!statusName) return "status-default"
+
+    const color = statoColorMap[statusName] || "secondary"
+
+    // Mappa i colori di Bootstrap alle classi CSS del dashboard
+    const colorToClass = {
+      success: "status-success",
+      danger: "status-danger",
+      secondary: "status-secondary",
+      warning: "status-warning",
+    }
+
+    return colorToClass[color] || "status-default"
+  }
 
   // Funzione per estrarre le iniziali dalla Ragione Sociale o Nome
   const getIniziali = (nome) => {
-    if (!nome) return "CL";
-    const parole = nome.trim().split(" ").filter(Boolean);
+    if (!nome) return "CL"
+    const parole = nome.trim().split(" ").filter(Boolean)
     if (parole.length === 1) {
-      return parole[0].substring(0, 2).toUpperCase();
+      return parole[0].substring(0, 2).toUpperCase()
     }
-    return (parole[0][0] + parole[1][0]).toUpperCase();
-  };
+    return (parole[0][0] + parole[1][0]).toUpperCase()
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
+        const payload = JSON.parse(atob(token.split(".")[1]))
 
         const nomeUtente =
           payload.nome ||
@@ -36,74 +61,72 @@ export default function Dashboard() {
           payload.name ||
           payload.given_name ||
           localStorage.getItem("nome") ||
-          payload.sub;
+          payload.sub
 
-        setUsername(nomeUtente);
+        setUsername(nomeUtente)
       } catch (error) {
-        console.error("Errore durante la lettura del token", error);
+        console.error("Errore durante la lettura del token", error)
       }
     }
 
-    caricaDatiDashboard(sizeClienti, sizeFatture);
-  }, [sizeClienti, sizeFatture]);
+    caricaDatiDashboard(sizeClienti, sizeFatture)
+  }, [sizeClienti, sizeFatture])
 
   const caricaDatiDashboard = async (limitC, limitF) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
 
     if (!token) {
-      setLoading(false);
-      return;
+      setLoading(false)
+      return
     }
 
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-    };
+    }
 
     try {
       const resClienti = await fetch(
         `http://localhost:8080/clienti?page=0&size=${limitC}&sortBy=dataInserimento&sortOrder=desc`,
         { headers },
-      );
+      )
 
       const resFatture = await fetch(
         `http://localhost:8080/fatture?page=0&size=${limitF}&sortBy=dataFattura&sortOrder=desc`,
         { headers },
-      );
+      )
 
       const resTutteLeFatture = await fetch(
         `http://localhost:8080/fatture?page=0&size=1000`,
         { headers },
-      );
+      )
 
       if (resClienti.ok && resFatture.ok && resTutteLeFatture.ok) {
-        const dataClienti = await resClienti.json();
-        const dataFatture = await resFatture.json();
-        const dataTutteLeFatture = await resTutteLeFatture.json();
+        const dataClienti = await resClienti.json()
+        const dataFatture = await resFatture.json()
+        const dataTutteLeFatture = await resTutteLeFatture.json()
 
-        setNuoviClienti(dataClienti.content || []);
-        setTotaleClienti(dataClienti.totalElements || 0);
+        setNuoviClienti(dataClienti.content || [])
+        setTotaleClienti(dataClienti.totalElements || 0)
 
-        setUltimeFatture(dataFatture.content || []);
-        setTotaleFatture(dataFatture.totalElements || 0);
+        setUltimeFatture(dataFatture.content || [])
+        setTotaleFatture(dataFatture.totalElements || 0)
 
         const sommaFatturato = (dataTutteLeFatture.content || []).reduce(
           (acc, f) => acc + (f.importo || 0),
           0,
-        );
-        setTotaleFatturato(sommaFatturato);
+        )
+        setTotaleFatturato(sommaFatturato)
       }
     } catch (error) {
-      console.error("Errore durante il caricamento della dashboard:", error);
+      console.error("Errore durante il caricamento della dashboard:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (loading) {
-    return (
-      <div className="loading-text">Caricamento Dashboard in corso...</div>
-    );
+    return <div className="loading-text">Caricamento Dashboard in corso...</div>
   }
 
   return (
@@ -226,10 +249,9 @@ export default function Dashboard() {
             <tbody>
               {ultimeFatture.length > 0 ? (
                 ultimeFatture.map((fattura) => {
-                  const rawStatus = fattura.statoFattura?.nome || "";
-                  const statusClass = rawStatus.toLowerCase().replace(" ", "_");
-                  const statusText =
-                    rawStatus.replace("_", " ") || "In lavorazione";
+                  const statusName = fattura.statoFattura?.nome || ""
+                  const statusClass = getStatusClass(statusName)
+                  const statusText = statusName || "In lavorazione"
 
                   return (
                     <tr key={fattura.id}>
@@ -246,12 +268,12 @@ export default function Dashboard() {
                         })}
                       </td>
                       <td>
-                        <span className={`status-badge status-${statusClass}`}>
+                        <span className={`status-badge ${statusClass}`}>
                           {statusText}
                         </span>
                       </td>
                     </tr>
-                  );
+                  )
                 })
               ) : (
                 <tr>
@@ -287,5 +309,5 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-  );
+  )
 }

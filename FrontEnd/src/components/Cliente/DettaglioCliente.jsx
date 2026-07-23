@@ -26,6 +26,14 @@ export default function DettaglioCliente({ cliente, show, onHide, onEdit }) {
 
   if (!cliente) return null
 
+  const statoColor = {
+    PAGATA: "success",
+    INSOLUTA: "danger",
+    NON_PAGATA: "danger",
+    ANNULLATA: "secondary",
+    IN_ATTESA: "secondary",
+  }
+
   return (
     <Offcanvas
       show={show}
@@ -116,7 +124,9 @@ export default function DettaglioCliente({ cliente, show, onHide, onEdit }) {
                   <td>{f.dataFattura}</td>
                   <td>€ {f.importo}</td>
                   <td>
-                    <Badge bg="secondary">{f.statoFattura?.nome}</Badge>
+                    <Badge bg={statoColor[f.statoFattura?.nome] || "secondary"}>
+                      {f.statoFattura?.nome}
+                    </Badge>
                   </td>
                 </tr>
               ))}

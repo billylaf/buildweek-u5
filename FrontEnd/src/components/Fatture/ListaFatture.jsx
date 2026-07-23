@@ -16,10 +16,12 @@ import DettaglioFattura from "./DettaglioFattura"
 import "./Fattura.css"
 
 const statoColor = {
-  PAGATO: "success",
-  SCADUTO: "danger",
-  IN_ATTESA: "warning",
-  ANNULLATO: "secondary",
+  PAGATA: "success",
+  INSOLUTA: "danger",
+  NON_PAGATA: "danger",
+  ANNULLATA: "secondary",
+  IN_ATTESA: "secondary",
+  "IN RITARDO": "secondary",
 }
 
 export default function ListaFatture() {
