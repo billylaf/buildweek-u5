@@ -146,7 +146,15 @@ export default function NuovaFattura({ show, onHide, fattura, onSaved }) {
                   disabled={loading}
                 >
                   <option value="">Seleziona uno stato...</option>
+
+                  {Array.isArray(stati) &&
+                    stati.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nome}
+                      </option>
+                    ))}
                 </Form.Select>
+
                 {!isStatiArray && (
                   <Form.Text className="text-danger">
                     Errore nel caricamento degli stati
