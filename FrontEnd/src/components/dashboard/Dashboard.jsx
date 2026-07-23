@@ -71,9 +71,15 @@ export default function Dashboard() {
         { headers },
       );
 
-      if (resClienti.ok && resFatture.ok) {
+      const resTutteLeFatture = await fetch(
+        `http://localhost:8080/fatture?page=0&size=1000`,
+        { headers },
+      );
+
+      if (resClienti.ok && resFatture.ok && resTutteLeFatture.ok) {
         const dataClienti = await resClienti.json();
         const dataFatture = await resFatture.json();
+        const dataTutteLeFatture = await resTutteLeFatture.json();
 
         setNuoviClienti(dataClienti.content || []);
         setTotaleClienti(dataClienti.totalElements || 0);
@@ -81,7 +87,7 @@ export default function Dashboard() {
         setUltimeFatture(dataFatture.content || []);
         setTotaleFatture(dataFatture.totalElements || 0);
 
-        const sommaFatturato = (dataFatture.content || []).reduce(
+        const sommaFatturato = (dataTutteLeFatture.content || []).reduce(
           (acc, f) => acc + (f.importo || 0),
           0,
         );

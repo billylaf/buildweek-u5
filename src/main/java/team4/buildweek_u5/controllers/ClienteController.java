@@ -3,6 +3,7 @@ package team4.buildweek_u5.controllers;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import team4.buildweek_u5.entities.Cliente;
 import team4.buildweek_u5.recordsDTO.ClienteDTO;
@@ -23,6 +24,7 @@ public class ClienteController {
     // POST /clienti salva nuovo cliente
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Cliente save(@RequestBody @Valid ClienteDTO body) {
         return clienteService.save(body);
     }
@@ -32,6 +34,7 @@ public class ClienteController {
     // I parametri con @RequestParam(required = false) dicono a Spring:
     // "L'utente può passare questo parametro nell'URL, ma se non lo mette, lascia il valore a null".
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Page<Cliente> getAll(
             @RequestParam(required = false) Double minFatturato,        // es. /clienti?minFatturato=50000
             @RequestParam(required = false) LocalDate dataInserimento,  // es. /clienti?dataInserimento=2026-01-15
@@ -48,30 +51,35 @@ public class ClienteController {
 
     // GET /clienti/{id} findbyid
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     public Cliente getById(@PathVariable Long id) {
         return clienteService.findById(id);
     }
 
     //  PUT /clienti/{id} modifica cliente
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Cliente update(@PathVariable Long id, @RequestBody @Valid ClienteDTO body) {
         return clienteService.update(id, body);
     }
 
     // PATCH /clienti/{id}/ultimo-contatto?data=2026-07-21
     @PatchMapping("/{id}/ultimo-contatto")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Cliente patchUltimoContatto(@PathVariable Long id, @RequestParam LocalDate data) {
         return clienteService.patchUltimoContatto(id, data);
     }
 
     // PATCH /clienti/{id}/logo?url=http://...
     @PatchMapping("/{id}/logo")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public Cliente patchLogo(@PathVariable Long id, @RequestParam String url) {
         return clienteService.patchLogo(id, url);
     }
 
     // DELETE /clienti/{id} deletebyid
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         clienteService.delete(id);
