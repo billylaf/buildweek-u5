@@ -9,34 +9,53 @@ export default function Dashboard() {
   const [nuoviClienti, setNuoviClienti] = useState([]);
   const [ultimeFatture, setUltimeFatture] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState("");
+
+  // Quanti elementi mostrare nelle tabelle parte da 5
+  const [sizeClienti, setSizeClienti] = useState(5);
+  const [sizeFatture, setSizeFatture] = useState(5);
 
   useEffect(() => {
-    caricaDatiDashboard();
-  }, []);
-
-  const caricaDatiDashboard = async () => {
+    // Estraiamo lo username dal Token JWT salvato nel browser
     const token = localStorage.getItem("token");
-    const headers = {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUsername(payload.sub || "Utente");
+      } catch (error) {
+        console.error(
+          "Errore durante la lettura dello username dal token",
+          error,
+        );
+      }
+    }
 
-    // Se non c'è il token, non facciamo neanche la chiamata e resettiamo il caricament
+    caricaDatiDashboard(sizeClienti, sizeFatture);
+  }, [sizeClienti, sizeFatture]);
+
+  const caricaDatiDashboard = async (limitC, limitF) => {
+    const token = localStorage.getItem("token");
+
     if (!token) {
       setLoading(false);
       return;
     }
 
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
     try {
-      // Chiamata per recuperare i primi 5 clienti ordinati per data inserimento
+      // Chiamata Clienti con il limite dinamico limitC
       const resClienti = await fetch(
-        "http://localhost:8080/clienti?page=0&size=5&sortBy=dataInserimento&sortOrder=desc",
+        `http://localhost:8080/clienti?page=0&size=${limitC}&sortBy=dataInserimento&sortOrder=desc`,
         { headers },
       );
 
-      // Chiamata per recuperare le prime 5 fatture ordinate per data fattura
+      // Chiamata Fatture con il limite dinamico limitF
       const resFatture = await fetch(
-        "http://localhost:8080/fatture?page=0&size=5&sortBy=dataFattura&sortOrder=desc",
+        `http://localhost:8080/fatture?page=0&size=${limitF}&sortBy=dataFattura&sortOrder=desc`,
         { headers },
       );
 
@@ -44,15 +63,12 @@ export default function Dashboard() {
         const dataClienti = await resClienti.json();
         const dataFatture = await resFatture.json();
 
-        // Salviamo la lista dei 5 nuovi clienti e il totale clienti
         setNuoviClienti(dataClienti.content || []);
         setTotaleClienti(dataClienti.totalElements || 0);
 
-        // Salviamo la lista delle 5 ultime fatture e il totale fatture
         setUltimeFatture(dataFatture.content || []);
         setTotaleFatture(dataFatture.totalElements || 0);
 
-        // Calcoliamo la somma del fatturato dei clienti recuperati
         const sommaFatturato = (dataClienti.content || []).reduce(
           (acc, c) => acc + (c.fatturatoAnnuale || 0),
           0,
@@ -74,8 +90,10 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Intestazione di benvenuto */}
-      <h2 className="welcome-title">Benvenuto! 👋</h2>
+      {/* 1. Nome utente accanto al Benvenuto */}
+      <h2 className="welcome-title">
+        Benvenuto{username ? `, ${username}` : ""}! 👋
+      </h2>
 
       {/* 4 Schede KPI */}
       <div className="kpi-grid">
@@ -117,7 +135,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Sezione Tabelle in Basso */}
+      {/* Sezione Tabelle */}
       <div className="tables-grid">
         {/* Tabella Nuovi Clienti */}
         <div className="table-card">
@@ -130,7 +148,28 @@ export default function Dashboard() {
                 nuoviClienti.map((cliente) => (
                   <tr key={cliente.id}>
                     <td className="company-cell">
-                      <span className="building-icon">🏢</span>
+                      {/* Mostra Avatar/Logo se presente, altrimenti setto icona di default */}
+                      {cliente.logoAziendale ||
+                      cliente.logo ||
+                      cliente.avatar ? (
+                        <img
+                          src={
+                            cliente.logoAziendale ||
+                            cliente.logo ||
+                            cliente.avatar
+                          }
+                          alt={cliente.ragioneSociale}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            marginRight: "10px",
+                          }}
+                        />
+                      ) : (
+                        <span className="building-icon">🏢</span>
+                      )}
                       <strong>{cliente.ragioneSociale}</strong>
                     </td>
                     <td className="text-end text-muted">
@@ -145,10 +184,30 @@ export default function Dashboard() {
               )}
             </tbody>
           </table>
+
+          {/* Pulsante per mostrare altri clienti */}
           <div className="table-footer">
-            <Link to="/clienti" className="view-all-link">
-              Vedi tutti i nuovi clienti →
-            </Link>
+            {sizeClienti < totaleClienti ? (
+              <button
+                onClick={() => setSizeClienti((prev) => prev + 5)}
+                style={{ background: "none", border: "none" }}
+                className="view-all-link"
+              >
+                Vedi altri clienti ({nuoviClienti.length}/{totaleClienti}) ↓
+              </button>
+            ) : sizeClienti > 5 ? (
+              <button
+                onClick={() => setSizeClienti(5)}
+                style={{ background: "none", border: "none" }}
+                className="view-all-link"
+              >
+                Riduci lista ↑
+              </button>
+            ) : (
+              <span style={{ fontSize: "0.85rem", color: "#888" }}>
+                Tutti i clienti caricati
+              </span>
+            )}
           </div>
         </div>
 
@@ -174,7 +233,9 @@ export default function Dashboard() {
                     </td>
                     <td>
                       <span
-                        className={`status-badge status-${fattura.statoFattura?.nome?.toLowerCase() || "default"}`}
+                        className={`status-badge status-${
+                          fattura.statoFattura?.nome?.toLowerCase() || "default"
+                        }`}
                       >
                         {fattura.statoFattura?.nome || "In lavorazione"}
                       </span>
@@ -188,10 +249,30 @@ export default function Dashboard() {
               )}
             </tbody>
           </table>
+
+          {/* Pulsante per mostrare altre fatture */}
           <div className="table-footer">
-            <Link to="/fatture" className="view-all-link">
-              Vedi tutte le fatture →
-            </Link>
+            {sizeFatture < totaleFatture ? (
+              <button
+                onClick={() => setSizeFatture((prev) => prev + 5)}
+                style={{ background: "none", border: "none" }}
+                className="view-all-link"
+              >
+                Vedi altre fatture ({ultimeFatture.length}/{totaleFatture}) ↓
+              </button>
+            ) : sizeFatture > 5 ? (
+              <button
+                onClick={() => setSizeFatture(5)}
+                style={{ background: "none", border: "none" }}
+                className="view-all-link"
+              >
+                Riduci lista ↑
+              </button>
+            ) : (
+              <span style={{ fontSize: "0.85rem", color: "#888" }}>
+                Tutte le fatture caricate
+              </span>
+            )}
           </div>
         </div>
       </div>
