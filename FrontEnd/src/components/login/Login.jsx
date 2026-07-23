@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Container, Card, Form, InputGroup, Button } from "react-bootstrap"
 import "./login.css"
 
 export default function Login() {
@@ -26,11 +27,9 @@ export default function Login() {
 
       if (res.ok) {
         const data = await res.json()
-        // Salviamo il token ricevuto dal backend
         localStorage.setItem("token", data.accessToken || data.token)
         if (data.username) localStorage.setItem("username", data.username)
 
-        // Navighiamo alla dashboard
         navigate("/dashboard")
       } else {
         alert("Credenziali errate!")
@@ -42,52 +41,78 @@ export default function Login() {
   }
 
   return (
-    <div className="login-container">
-      <form className="form" onSubmit={handleSubmit}>
-        <p id="heading">Login</p>
+    <div className="auth-page">
+      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+        <Card className="auth-card">
+          <Card.Body className="p-4 p-md-5">
+            <div className="text-center mb-3">
+              <div className="d-flex align-items-center justify-content-center gap-2">
+                <i className="bi bi-lightning-charge-fill text-warning fs-1"></i>
+                <span className="auth-brand">EPIC</span>
+              </div>
+              <div className="auth-brand-sub">ENERGY SERVICES</div>
+            </div>
 
-        <div className="field">
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            className="input-field"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            <hr />
 
-        <div className="field">
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            className="input-field"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            <p className="text-center text-muted mb-4">
+              CRM - Gestione Clienti
+            </p>
 
-        <div className="btn">
-          <button className="button1" type="submit">
-            Login
-          </button>
+            <Form onSubmit={handleSubmit}>
+              <InputGroup className="mb-3">
+                <InputGroup.Text className="bg-white">
+                  <i className="bi bi-envelope text-muted"></i>
+                </InputGroup.Text>
+                <Form.Control
+                  name="email"
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
+              </InputGroup>
 
-          <button
-            className="button2"
-            type="button"
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up
-          </button>
-        </div>
+              <InputGroup className="mb-4">
+                <InputGroup.Text className="bg-white">
+                  <i className="bi bi-lock text-muted"></i>
+                </InputGroup.Text>
+                <Form.Control
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+              </InputGroup>
 
-        <button className="button3" type="button">
-          Forgot Password
-        </button>
-      </form>
+              <Button
+                type="submit"
+                className="w-100 btn-epic-gold fw-bold py-2"
+              >
+                Accedi
+              </Button>
+            </Form>
+
+            <hr className="my-4" />
+
+            <p className="text-center mb-0">
+              Non hai un account?{" "}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  navigate("/signup")
+                }}
+              >
+                Registrati
+              </a>
+            </p>
+          </Card.Body>
+        </Card>
+      </Container>
     </div>
   )
 }
