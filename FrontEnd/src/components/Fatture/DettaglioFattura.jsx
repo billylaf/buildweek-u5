@@ -14,12 +14,12 @@ export default function DettaglioFattura({ fattura, show, onHide, onEdit }) {
   }
 
   const statoColor = {
-    PAGATO: "success",
-    SCADUTO: "danger",
-    IN_ATTESA: "warning",
-    ANNULLATO: "secondary",
+    PAGATA: "success",
+    INSOLUTA: "danger",
+    NON_PAGATA: "danger",
+    ANNULLATA: "secondary",
+    IN_ATTESA: "secondary",
   }
-
   return (
     <Offcanvas
       show={show}
