@@ -21,7 +21,7 @@ export default function Dashboard() {
       ...(token && { Authorization: `Bearer ${token}` }),
     };
 
-    // Se non c'è il token, non facciamo neanche la chiamata e resettiamo il caricamento
+    // Se non c'è il token, non facciamo neanche la chiamata e resettiamo il caricament
     if (!token) {
       setLoading(false);
       return;
