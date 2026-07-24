@@ -66,3 +66,82 @@ export async function deleteCliente(id) {
     },
   })
 }
+
+// ---------------------------------------------------------------
+// COMUNI
+// ---------------------------------------------------------------
+
+export async function getComuni() {
+  const res = await fetch(`${BASE}/comuni`, {
+    headers: {
+      ...authHeader(),
+    },
+  })
+
+  if (!res.ok) {
+    throw new Error("Errore API: " + res.status)
+  }
+
+  return res.json()
+}
+
+export async function getIndirizziByCliente(clienteId) {
+  const res = await fetch(`${BASE}/indirizzi/cliente/${clienteId}`, {
+    headers: {
+      ...authHeader(),
+    },
+  })
+
+  if (!res.ok) {
+    throw new Error("Errore API: " + res.status)
+  }
+
+  return res.json()
+}
+
+export async function createIndirizzo(data) {
+  const res = await fetch(`${BASE}/indirizzi`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader(),
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Errore API: " + res.status)
+  }
+
+  return res.json()
+}
+
+export async function updateIndirizzo(id, data) {
+  const res = await fetch(`${BASE}/indirizzi/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader(),
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Errore API: " + res.status)
+  }
+
+  return res.json()
+}
+
+export async function deleteIndirizzo(id) {
+  const res = await fetch(`${BASE}/indirizzi/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...authHeader(),
+    },
+  })
+
+  if (!res.ok) {
+    throw new Error("Errore API: " + res.status)
+  }
+}

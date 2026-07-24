@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react"
 import {
   Container,
   Row,
@@ -9,51 +9,80 @@ import {
   Table,
   Pagination,
   Badge,
-} from "react-bootstrap";
-import { getClienti, deleteCliente } from "./api";
-import NuovoCliente from "./NuovoCliente";
-import DettaglioCliente from "./DettaglioCliente";
-import "./Cliente.css";
-import { getUserRoleInfo } from "../../auth/auth";
+} from "react-bootstrap"
+import { getClienti, deleteCliente, getIndirizziByCliente } from "./api"
+import NuovoCliente from "./NuovoCliente"
+import DettaglioCliente from "./DettaglioCliente"
+import "./Cliente.css"
+import { getUserRoleInfo } from "../../auth/auth"
 
 const tipoColor = {
   PA: "primary",
   SRL: "success",
   SPA: "warning",
   SAS: "danger",
-};
+}
+
+// Formatta un oggetto Indirizzo in una stringa leggibile
+function formatIndirizzo(ind) {
+  if (!ind) return "-"
+  const comune = ind.comune?.nome ? ` - ${ind.comune.nome}` : ""
+  return `${ind.via} ${ind.civico}${comune} (${ind.cap})`
+}
 
 export default function ListaClienti() {
   // Verifichiamo se l'utente è ADMIN
-const { isAdmin } = getUserRoleInfo();
+  const { isAdmin } = getUserRoleInfo()
 
-  const [clienti, setClienti] = useState([]);
-  const [nome, setNome] = useState("");
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [clienti, setClienti] = useState([])
+  const [nome, setNome] = useState("")
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
 
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [showDetail, setShowDetail] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [showDetail, setShowDetail] = useState(false)
+  const [selected, setSelected] = useState(null)
+
+  // Mappa clienteId -> indirizzo principale (Sede Legale se presente, altrimenti il primo)
+  const [indirizziMap, setIndirizziMap] = useState({})
 
   const fetchClienti = useCallback(() => {
     getClienti({ nome, page, size: 10 }).then((data) => {
-      setClienti(data.content || []);
-      setTotalPages(data.totalPages ?? 0);
-    });
-  }, [nome, page]);
+      const lista = data.content || []
+      setClienti(lista)
+      setTotalPages(data.totalPages ?? 0)
+
+      // Per ogni cliente in pagina recuperiamo il suo indirizzo principale
+      lista.forEach((c) => {
+        getIndirizziByCliente(c.id)
+          .then((indirizzi) => {
+            const principale =
+              (indirizzi || []).find(
+                (i) => i.tipoIndirizzo === "SEDE_LEGALE",
+              ) ||
+              (indirizzi || [])[0] ||
+              null
+
+            setIndirizziMap((prev) => ({ ...prev, [c.id]: principale }))
+          })
+          .catch(() => {
+            setIndirizziMap((prev) => ({ ...prev, [c.id]: null }))
+          })
+      })
+    })
+  }, [nome, page])
 
   useEffect(() => {
-    fetchClienti();
-  }, [fetchClienti]);
+    fetchClienti()
+  }, [fetchClienti])
 
   const handleDelete = async (c) => {
-    if (!isAdmin) return;
-    if (!window.confirm(`Eliminare "${c.ragioneSociale}"?`)) return;
-    await deleteCliente(c.id);
-    fetchClienti();
-  };
+    if (!isAdmin) return
+    if (!window.confirm(`Eliminare "${c.ragioneSociale}"?`)) return
+    await deleteCliente(c.id)
+    fetchClienti()
+  }
 
   return (
     <Container fluid className="px-4 py-4">
@@ -66,8 +95,8 @@ const { isAdmin } = getUserRoleInfo();
           <Button
             className="btn-epic-gold"
             onClick={() => {
-              setEditing(null);
-              setShowForm(true);
+              setEditing(null)
+              setShowForm(true)
             }}
           >
             <i className="bi bi-plus-lg me-1"></i> Nuovo Cliente
@@ -85,8 +114,8 @@ const { isAdmin } = getUserRoleInfo();
               placeholder="Cerca cliente..."
               value={nome}
               onChange={(e) => {
-                setNome(e.target.value);
-                setPage(0);
+                setNome(e.target.value)
+                setPage(0)
               }}
             />
           </InputGroup>
@@ -102,6 +131,7 @@ const { isAdmin } = getUserRoleInfo();
                   <th>Nome</th>
                   <th>Partita IVA</th>
                   <th>Email</th>
+                  <th>Indirizzo</th>
                   <th>Fatturato</th>
                   <th>Tipo</th>
                   <th>Azioni</th>
@@ -110,7 +140,7 @@ const { isAdmin } = getUserRoleInfo();
               <tbody>
                 {clienti.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center text-muted py-4">
+                    <td colSpan={7} className="text-center text-muted py-4">
                       Nessun cliente trovato
                     </td>
                   </tr>
@@ -123,9 +153,9 @@ const { isAdmin } = getUserRoleInfo();
                         href="#"
                         className="epic-cliente-link"
                         onClick={(e) => {
-                          e.preventDefault();
-                          setSelected(c);
-                          setShowDetail(true);
+                          e.preventDefault()
+                          setSelected(c)
+                          setShowDetail(true)
                         }}
                       >
                         {c.ragioneSociale}
@@ -134,6 +164,9 @@ const { isAdmin } = getUserRoleInfo();
 
                     <td>{c.partitaIva}</td>
                     <td>{c.email}</td>
+                    <td className="small">
+                      {formatIndirizzo(indirizziMap[c.id])}
+                    </td>
                     <td>€ {c.fatturatoAnnuale?.toLocaleString("it-IT")}</td>
 
                     <td>
@@ -148,8 +181,8 @@ const { isAdmin } = getUserRoleInfo();
                         className="action-icon-btn"
                         disabled={!isAdmin}
                         onClick={() => {
-                          setEditing(c);
-                          setShowForm(true);
+                          setEditing(c)
+                          setShowForm(true)
                         }}
                       >
                         <i className="bi bi-pencil"></i>
@@ -168,8 +201,8 @@ const { isAdmin } = getUserRoleInfo();
                       <button
                         className="action-icon-btn"
                         onClick={() => {
-                          setSelected(c);
-                          setShowDetail(true);
+                          setSelected(c)
+                          setShowDetail(true)
                         }}
                       >
                         <i className="bi bi-eye"></i>
@@ -214,8 +247,8 @@ const { isAdmin } = getUserRoleInfo();
         onHide={() => setShowForm(false)}
         cliente={editing}
         onSaved={() => {
-          setShowForm(false);
-          fetchClienti();
+          setShowForm(false)
+          fetchClienti()
         }}
       />
 
@@ -224,11 +257,11 @@ const { isAdmin } = getUserRoleInfo();
         show={showDetail}
         onHide={() => setShowDetail(false)}
         onEdit={(c) => {
-          setEditing(c);
-          setShowDetail(false);
-          setShowForm(true);
+          setEditing(c)
+          setShowDetail(false)
+          setShowForm(true)
         }}
       />
     </Container>
-  );
+  )
 }
