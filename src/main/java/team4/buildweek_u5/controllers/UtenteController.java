@@ -25,7 +25,6 @@ public class UtenteController {
         this.utenteService = utenteService;
     }
 
-    // 🔥 MODIFICA: RIMOSSO @PreAuthorize - ENDPOINT PUBBLICO
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegistrazioneResponseDTO createAccount(@RequestBody @Validated RegistrazioneDTO body) {

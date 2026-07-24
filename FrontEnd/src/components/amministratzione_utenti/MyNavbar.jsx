@@ -30,7 +30,7 @@ function MyNavbar({
     cognome: "",
     email: "",
     password: "",
-    ruolo: "ROLE_USER", // 🔥 MODIFICATO: DA "USER" A "ROLE_USER"
+    ruolo: "ROLE_USER",
   })
 
   const [showAvatarModal, setShowAvatarModal] = useState(false)
@@ -98,7 +98,7 @@ function MyNavbar({
       cognome: "",
       email: "",
       password: "",
-      ruolo: "ROLE_USER", // 🔥 MODIFICATO: DA "USER" A "ROLE_USER"
+      ruolo: "ROLE_USER",
     })
     setCreateError(null)
     setShowCreateModal(true)
@@ -109,7 +109,6 @@ function MyNavbar({
     setCreateError(null)
   }
 
-  // 🔥 MODIFICATA: La funzione handleCreateUserSubmit
   const handleCreateUserSubmit = (e) => {
     e.preventDefault()
     setCreateLoading(true)

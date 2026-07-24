@@ -64,7 +64,6 @@ public class UtenteService {
                 bCrypt.encode(body.password())
         );
 
-        // 🔥 MODIFICA: Assegna SOLO il ruolo richiesto, non entrambi
         String ruoloRichiesto = body.ruolo();
         if (ruoloRichiesto != null && ruoloRichiesto.equalsIgnoreCase("ROLE_ADMIN")) {
             // Solo ADMIN, non USER

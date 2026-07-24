@@ -19,7 +19,7 @@ export default function Sign() {
     email: "",
     password: "",
     confirm: "",
-    ruolo: "ROLE_USER", // 🔥 MODIFICATO: DA "USER" A "ROLE_USER"
+    ruolo: "ROLE_USER",
   })
 
   const navigate = useNavigate()
@@ -46,7 +46,7 @@ export default function Sign() {
           cognome: form.cognome,
           email: form.email,
           password: form.password,
-          ruolo: form.ruolo, // 🔥 Ora è "ROLE_USER"
+          ruolo: form.ruolo,
         }),
       })
 

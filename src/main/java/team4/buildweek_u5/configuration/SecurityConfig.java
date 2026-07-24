@@ -33,10 +33,8 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.authorizeHttpRequests(req -> req
-                // endpoint aperti a tutti senza token
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/utenti/register").permitAll()  // 🔥 MODIFICA: RESO PUBBLICO
-                // tutte le altre richieste richiede solo che l'utente sia loggato ed in possesso del token
+                .requestMatchers("/utenti/register").permitAll()
                 .anyRequest().authenticated()
         );
 
