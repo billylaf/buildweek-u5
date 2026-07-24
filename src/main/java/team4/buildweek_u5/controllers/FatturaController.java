@@ -1,0 +1,129 @@
+package team4.buildweek_u5.controllers;
+
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import team4.buildweek_u5.entities.Fattura;
+import team4.buildweek_u5.recordsDTO.FatturaDTO;
+import team4.buildweek_u5.services.FatturaService;
+
+import java.time.LocalDate;
+
+@RestController
+@RequestMapping("/fatture")
+public class FatturaController {
+
+    private final FatturaService fatturaService;
+
+    public FatturaController(FatturaService fatturaService) {
+        this.fatturaService = fatturaService;
+    }
+
+    // POST /fatture
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    public Fattura save(@RequestBody @Valid FatturaDTO body) {
+        return fatturaService.save(body);
+    }
+
+    // GET UNICA /fatture con filtri, paginazione e ordinamento opzionali
+    // required = false: indica che l'utente NON è obbligato a passare il parametro nell'URL.
+    // defaultValue: valore predefinito se l'utente non lo specifica.
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    public Page<Fattura> getAll(
+            @RequestParam(required = false) Long clienteId,        // es. /fatture?clienteId=1
+            @RequestParam(required = false) Long statoId,          // es. /fatture?statoId=2
+            @RequestParam(required = false) LocalDate data,         // es. /fatture?data=2026-05-10
+            @RequestParam(required = false) Integer anno,           // es. /fatture?anno=2026
+            @RequestParam(required = false) Double minImporto,      // es. /fatture?minImporto=100.0
+            @RequestParam(required = false) Double maxImporto,      // es. /fatture?maxImporto=5000.0
+            @RequestParam(defaultValue = "0") int page,            // Numero di pagina (da 0)
+            @RequestParam(defaultValue = "10") int size,           // Quanti risultati per pagina
+            @RequestParam(defaultValue = "id") String sortBy,       // Campo di ordinamento (es. importo, dataFattura)
+            @RequestParam(defaultValue = "asc") String sortOrder) { // Ordine: "asc" o "desc"
+
+        return fatturaService.findAll(clienteId, statoId, data, anno, minImporto, maxImporto, page, size, sortBy, sortOrder);
+    }
+
+    // GET /fatture/{id} findbyid
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    public Fattura getById(@PathVariable Long id) {
+        return fatturaService.findById(id);
+    }
+
+    // PUT /fatture/{id} modifica fattura
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public Fattura update(@PathVariable Long id, @RequestBody @Valid FatturaDTO body) {
+        return fatturaService.update(id, body);
+    }
+
+    // PATCH /fatture/{id}/stato?statoId=2 cambia solo lo stato della fattura
+    @PatchMapping("/{id}/stato")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public Fattura patchStato(@PathVariable Long id, @RequestParam Long statoId) {
+        return fatturaService.patchStatoFattura(id, statoId);
+    }
+
+    // DELETE /fatture/{id} deletebyid
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        fatturaService.delete(id);
+    }
+
+    // SOSTITUITO CON GET ALL CON PARAMETRI OPZIONALI
+//    // --------------------------ENDPOINT PER I FILTRI DELLE FATTURE CUSTOM
+//
+//    // GET /fatture/filtro-cliente?clienteId=1
+//    @GetMapping("/filtro-cliente")
+//    public Page<Fattura> filterByCliente(
+//            @RequestParam Long clienteId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByCliente(clienteId, page, size);
+//    }
+//
+//    // GET /fatture/filtro-stato?statoId=2
+//    @GetMapping("/filtro-stato")
+//    public Page<Fattura> filterByStato(
+//            @RequestParam Long statoId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByStato(statoId, page, size);
+//    }
+//
+//    // GET /fatture/filtro-data?data=2026-05-10
+//    @GetMapping("/filtro-data")
+//    public Page<Fattura> filterByData(
+//            @RequestParam LocalDate data,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByData(data, page, size);
+//    }
+//
+//    // GET /fatture/filtro-anno?anno=2026
+//    @GetMapping("/filtro-anno")
+//    public Page<Fattura> filterByAnno(
+//            @RequestParam int anno,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByAnno(anno, page, size);
+//    }
+//
+//    // GET /fatture/filtro-importi?min=100.0&max=5000.0
+//    @GetMapping("/filtro-importi")
+//    public Page<Fattura> filterByRangeImporti(
+//            @RequestParam Double min,
+//            @RequestParam Double max,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return fatturaService.filterByRangeImporti(min, max, page, size);
+//    }
+}

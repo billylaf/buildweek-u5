@@ -1,0 +1,45 @@
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, #0f1b33 0%, #16233f 100%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.auth-card-wide {
+  max-width: 560px;
+}
+
+.auth-brand {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f1b33;
+  letter-spacing: 0.02em;
+}
+
+.auth-brand-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #0f1b33;
+  margin-top: -4px;
+}
+
+.btn-epic-gold {
+  background-color: #d4a64a;
+  border-color: #d4a64a;
+  color: #1f2937;
+}
+
+.btn-epic-gold:hover,
+.btn-epic-gold:focus {
+  background-color: #c2953c;
+  border-color: #c2953c;
+  color: #1f2937;
+}

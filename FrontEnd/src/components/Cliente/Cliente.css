@@ -1,0 +1,61 @@
+.epic-panel {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e6e6e6;
+}
+
+.epic-table {
+  font-size: 0.9rem;
+}
+
+.epic-table thead th {
+  background: #fafafa;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.epic-table tbody tr:hover {
+  background: #f7f7f7;
+}
+
+.action-icon-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  margin-right: 6px;
+  cursor: pointer;
+  color: #555;
+  transition: 0.2s;
+}
+
+.action-icon-btn:hover {
+  color: #000;
+  transform: scale(1.15);
+}
+
+.btn-epic-gold {
+  background: linear-gradient(135deg, #f7d774, #e6b84e);
+  border: none;
+  color: #000;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.btn-epic-gold:hover {
+  background: linear-gradient(135deg, #ffe28a, #f0c35a);
+  transform: translateY(-2px);
+}
+
+.epic-cliente-link {
+  color: #007bff;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.epic-cliente-link:hover {
+  text-decoration: underline;
+}
