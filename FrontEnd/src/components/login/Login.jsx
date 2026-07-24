@@ -1,44 +1,85 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Container, Card, Form, InputGroup, Button } from "react-bootstrap"
-import "./login.css"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Card, Form, InputGroup, Button } from "react-bootstrap";
+import "./login.css";
 
 export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-  })
+  });
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       const res = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
-      })
+      });
 
       if (res.ok) {
-        const data = await res.json()
-        localStorage.setItem("token", data.accessToken || data.token)
-        if (data.username) localStorage.setItem("username", data.username)
+        const data = await res.json();
 
-        navigate("/dashboard")
+        // LOG DI CONTROLLO
+        console.log("Risposta Login Backend:", data);
+
+        const token = data.accessToken || data.token || "";
+        localStorage.setItem("token", token);
+        if (data.username) localStorage.setItem("username", data.username);
+
+        let finalRole = "USER";
+
+        // Decodifichiamo il token JWT per estrarre il ruolo nascosto
+        if (token) {
+          try {
+            const payloadBase64 = token.split(".")[1];
+            const decodedPayload = JSON.parse(atob(payloadBase64));
+
+            console.log("Contenuto del Token decodificato:", decodedPayload);
+
+            let rawRole =
+              decodedPayload.roles ||
+              decodedPayload.role ||
+              decodedPayload.authorities;
+
+            if (Array.isArray(rawRole)) {
+              rawRole = rawRole[0];
+            }
+
+            if (typeof rawRole === "object" && rawRole !== null) {
+              rawRole =
+                rawRole.authority || rawRole.role || rawRole.nome || "";
+            }
+
+            if (rawRole) {
+              finalRole = String(rawRole);
+            }
+          } catch (err) {
+            console.error("Errore durante la decodifica del token:", err);
+          }
+        }
+
+        // Salviamo il ruolo estratto dal token
+        localStorage.setItem("role", finalRole);
+        console.log("Ruolo salvato nel localStorage:", finalRole);
+
+        navigate("/dashboard");
       } else {
-        alert("Credenziali errate!")
+        alert("Credenziali errate!");
       }
     } catch (error) {
-      console.error("Errore durante il login:", error)
-      alert("Impossibile connettersi al server.")
+      console.error("Errore durante il login:", error);
+      alert("Impossibile connettersi al server.");
     }
-  }
+  };
 
   return (
     <div className="auth-page">
@@ -103,8 +144,8 @@ export default function Login() {
               <a
                 href="#"
                 onClick={(e) => {
-                  e.preventDefault()
-                  navigate("/signup")
+                  e.preventDefault();
+                  navigate("/signup");
                 }}
               >
                 Registrati
@@ -114,5 +155,5 @@ export default function Login() {
         </Card>
       </Container>
     </div>
-  )
+  );
 }
