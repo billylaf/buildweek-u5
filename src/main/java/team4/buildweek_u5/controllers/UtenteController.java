@@ -8,7 +8,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team4.buildweek_u5.entities.Utente;
-import team4.buildweek_u5.recordsDTO.*;
+import team4.buildweek_u5.recordsDTO.ModificaRuoliDTO;
+import team4.buildweek_u5.recordsDTO.RegistrazioneDTO;
+import team4.buildweek_u5.recordsDTO.RegistrazioneResponseDTO;
 import team4.buildweek_u5.services.UtenteService;
 
 import java.util.List;
@@ -20,13 +22,11 @@ public class UtenteController {
     private final UtenteService utenteService;
 
     public UtenteController(UtenteService utenteService) {
-
         this.utenteService = utenteService;
     }
 
-
+    // 🔥 MODIFICA: RIMOSSO @PreAuthorize - ENDPOINT PUBBLICO
     @PostMapping("/register")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public RegistrazioneResponseDTO createAccount(@RequestBody @Validated RegistrazioneDTO body) {
         return new RegistrazioneResponseDTO(this.utenteService.registraUtente(body)
@@ -49,7 +49,6 @@ public class UtenteController {
     public Utente updateUtenteByAdmin(
             @PathVariable String username,
             @RequestBody @Valid RegistrazioneDTO body) {
-
         return utenteService.updateUtente(username, body);
     }
 
@@ -65,7 +64,6 @@ public class UtenteController {
     public Utente aggiornaRuoliUtente(
             @PathVariable String username,
             @RequestBody @Valid ModificaRuoliDTO body) {
-
         return utenteService.aggiornaRuoliUtente(username, body);
     }
 
@@ -74,12 +72,4 @@ public class UtenteController {
                              @RequestParam("avatar") MultipartFile file) {
         this.utenteService.updateAvatar(currentUtente.getUsername(), file);
     }
-
-//    @PostMapping("/invio-email")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void inviaEmailAdUtente(@RequestBody @Valid EmailRequestDTO body) {
-//        this.emailSender.sendEmail(body.emailDestinatario(), body.oggetto(), body.messaggio());
-//    }
-
 }

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class UtenteService {
@@ -65,13 +64,13 @@ public class UtenteService {
                 bCrypt.encode(body.password())
         );
 
+        // 🔥 MODIFICA: Assegna SOLO il ruolo richiesto, non entrambi
         String ruoloRichiesto = body.ruolo();
-
         if (ruoloRichiesto != null && ruoloRichiesto.equalsIgnoreCase("ROLE_ADMIN")) {
-            nuovoUtente.addRuolo(ruoloUser);
+            // Solo ADMIN, non USER
             nuovoUtente.addRuolo(ruoloAdmin);
-            System.out.println("Creato utente ADMIN: " + body.username());
         } else {
+            // Solo USER
             nuovoUtente.addRuolo(ruoloUser);
         }
 
