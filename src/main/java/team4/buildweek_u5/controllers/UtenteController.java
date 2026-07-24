@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team4.buildweek_u5.entities.Utente;
+import team4.buildweek_u5.recordsDTO.EmailRequestDTO;
 import team4.buildweek_u5.recordsDTO.ModificaRuoliDTO;
 import team4.buildweek_u5.recordsDTO.RegistrazioneDTO;
 import team4.buildweek_u5.recordsDTO.RegistrazioneResponseDTO;
