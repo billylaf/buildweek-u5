@@ -1,17 +1,21 @@
-import { Offcanvas, Container, Row, Col, Button, Badge } from "react-bootstrap"
+import { Offcanvas, Container, Row, Col, Button, Badge } from "react-bootstrap";
+import { getUserRoleInfo } from "../../auth/auth";
 
 export default function DettaglioFattura({ fattura, show, onHide, onEdit }) {
-  if (!fattura) return null
+  // Controlliamo se l'utente è ADMIN
+const { isAdmin } = getUserRoleInfo();
+
+  if (!fattura) return null;
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return "-"
-    const d = new Date(dateStr)
-    return d.toLocaleDateString("it-IT")
-  }
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("it-IT");
+  };
 
   const formatCurrency = (amount) => {
-    return `€ ${amount?.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0,00"}`
-  }
+    return `€ ${amount?.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0,00"}`;
+  };
 
   const statoColor = {
     PAGATA: "success",
@@ -19,7 +23,8 @@ export default function DettaglioFattura({ fattura, show, onHide, onEdit }) {
     NON_PAGATA: "danger",
     ANNULLATA: "secondary",
     IN_ATTESA: "secondary",
-  }
+  };
+
   return (
     <Offcanvas
       show={show}
@@ -35,9 +40,11 @@ export default function DettaglioFattura({ fattura, show, onHide, onEdit }) {
         <Container fluid className="px-0">
           <Row className="mb-3">
             <Col className="text-end">
+              {/* PULSANTE MODIFICA: DISABILITATO SE NON E' ADMIN */}
               <Button
                 variant="outline-primary"
                 size="sm"
+                disabled={!isAdmin}
                 onClick={() => onEdit(fattura)}
               >
                 <i className="bi bi-pencil me-1"></i> Modifica
@@ -108,5 +115,5 @@ export default function DettaglioFattura({ fattura, show, onHide, onEdit }) {
         </Container>
       </Offcanvas.Body>
     </Offcanvas>
-  )
+  );
 }

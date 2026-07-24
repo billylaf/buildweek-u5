@@ -8,6 +8,7 @@ import team4.buildweek_u5.entities.Utente;
 import team4.buildweek_u5.exceptions.UnauthorizedException;
 
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JWTTools {
@@ -19,10 +20,14 @@ public class JWTTools {
     }
 
     public String createToken(Utente utente) {
+        List<String> ruoliNomi = utente.getRuoli().stream()
+                .map(ur -> ur.getRuolo().getRuolo())
+                .toList();
         return Jwts.builder()
                 .subject((utente.getUsername()))
                 // stringhifizzo il long per settarlo come subject
                 .claim("nome", utente.getNome())
+                .claim("roles", ruoliNomi)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 ore di scadenza
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))

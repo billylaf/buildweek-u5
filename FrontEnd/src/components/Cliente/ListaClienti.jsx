@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback } from "react";
 import {
   Container,
   Row,
@@ -9,46 +9,51 @@ import {
   Table,
   Pagination,
   Badge,
-} from "react-bootstrap"
-import { getClienti, deleteCliente } from "./api"
-import NuovoCliente from "./NuovoCliente"
-import DettaglioCliente from "./DettaglioCliente"
-import "./Cliente.css"
+} from "react-bootstrap";
+import { getClienti, deleteCliente } from "./api";
+import NuovoCliente from "./NuovoCliente";
+import DettaglioCliente from "./DettaglioCliente";
+import "./Cliente.css";
+import { getUserRoleInfo } from "../../auth/auth";
 
 const tipoColor = {
   PA: "primary",
   SRL: "success",
   SPA: "warning",
   SAS: "danger",
-}
+};
 
 export default function ListaClienti() {
-  const [clienti, setClienti] = useState([])
-  const [nome, setNome] = useState("")
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
+  // Verifichiamo se l'utente è ADMIN
+const { isAdmin } = getUserRoleInfo();
 
-  const [showForm, setShowForm] = useState(false)
-  const [editing, setEditing] = useState(null)
-  const [showDetail, setShowDetail] = useState(false)
-  const [selected, setSelected] = useState(null)
+  const [clienti, setClienti] = useState([]);
+  const [nome, setNome] = useState("");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   const fetchClienti = useCallback(() => {
     getClienti({ nome, page, size: 10 }).then((data) => {
-      setClienti(data.content || [])
-      setTotalPages(data.totalPages ?? 0)
-    })
-  }, [nome, page])
+      setClienti(data.content || []);
+      setTotalPages(data.totalPages ?? 0);
+    });
+  }, [nome, page]);
 
   useEffect(() => {
-    fetchClienti()
-  }, [fetchClienti])
+    fetchClienti();
+  }, [fetchClienti]);
 
   const handleDelete = async (c) => {
-    if (!window.confirm(`Eliminare "${c.ragioneSociale}"?`)) return
-    await deleteCliente(c.id)
-    fetchClienti()
-  }
+    if (!isAdmin) return;
+    if (!window.confirm(`Eliminare "${c.ragioneSociale}"?`)) return;
+    await deleteCliente(c.id);
+    fetchClienti();
+  };
 
   return (
     <Container fluid className="px-4 py-4">
@@ -57,11 +62,12 @@ export default function ListaClienti() {
           <h2 className="fw-bold mb-0">Gestione Clienti</h2>
         </Col>
         <Col xs="auto">
+          {/* BOTTONE NUOVO CLIENTE: ATTIVO PER TUTTI */}
           <Button
             className="btn-epic-gold"
             onClick={() => {
-              setEditing(null)
-              setShowForm(true)
+              setEditing(null);
+              setShowForm(true);
             }}
           >
             <i className="bi bi-plus-lg me-1"></i> Nuovo Cliente
@@ -79,8 +85,8 @@ export default function ListaClienti() {
               placeholder="Cerca cliente..."
               value={nome}
               onChange={(e) => {
-                setNome(e.target.value)
-                setPage(0)
+                setNome(e.target.value);
+                setPage(0);
               }}
             />
           </InputGroup>
@@ -117,9 +123,9 @@ export default function ListaClienti() {
                         href="#"
                         className="epic-cliente-link"
                         onClick={(e) => {
-                          e.preventDefault()
-                          setSelected(c)
-                          setShowDetail(true)
+                          e.preventDefault();
+                          setSelected(c);
+                          setShowDetail(true);
                         }}
                       >
                         {c.ragioneSociale}
@@ -137,28 +143,33 @@ export default function ListaClienti() {
                     </td>
 
                     <td>
+                      {/* MODIFICA: SOLO PER ADMIN */}
                       <button
                         className="action-icon-btn"
+                        disabled={!isAdmin}
                         onClick={() => {
-                          setEditing(c)
-                          setShowForm(true)
+                          setEditing(c);
+                          setShowForm(true);
                         }}
                       >
                         <i className="bi bi-pencil"></i>
                       </button>
 
+                      {/* ELIMINA: SOLO PER ADMIN */}
                       <button
                         className="action-icon-btn text-danger"
+                        disabled={!isAdmin}
                         onClick={() => handleDelete(c)}
                       >
                         <i className="bi bi-trash"></i>
                       </button>
 
+                      {/* DETTAGLIO: APERTO A TUTTI */}
                       <button
                         className="action-icon-btn"
                         onClick={() => {
-                          setSelected(c)
-                          setShowDetail(true)
+                          setSelected(c);
+                          setShowDetail(true);
                         }}
                       >
                         <i className="bi bi-eye"></i>
@@ -203,8 +214,8 @@ export default function ListaClienti() {
         onHide={() => setShowForm(false)}
         cliente={editing}
         onSaved={() => {
-          setShowForm(false)
-          fetchClienti()
+          setShowForm(false);
+          fetchClienti();
         }}
       />
 
@@ -213,11 +224,11 @@ export default function ListaClienti() {
         show={showDetail}
         onHide={() => setShowDetail(false)}
         onEdit={(c) => {
-          setEditing(c)
-          setShowDetail(false)
-          setShowForm(true)
+          setEditing(c);
+          setShowDetail(false);
+          setShowForm(true);
         }}
       />
     </Container>
-  )
+  );
 }

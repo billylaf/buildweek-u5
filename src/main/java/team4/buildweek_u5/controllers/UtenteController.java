@@ -8,7 +8,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team4.buildweek_u5.entities.Utente;
-import team4.buildweek_u5.recordsDTO.*;
+import team4.buildweek_u5.recordsDTO.ModificaRuoliDTO;
+import team4.buildweek_u5.recordsDTO.RegistrazioneDTO;
+import team4.buildweek_u5.recordsDTO.RegistrazioneResponseDTO;
 import team4.buildweek_u5.services.UtenteService;
 import team4.buildweek_u5.tools.EmailSender;
 
@@ -26,7 +28,6 @@ public class UtenteController {
         this.utenteService = utenteService;
         this.emailSender = emailSender;
     }
-
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,7 +52,6 @@ public class UtenteController {
     public Utente updateUtenteByAdmin(
             @PathVariable String username,
             @RequestBody @Valid RegistrazioneDTO body) {
-
         return utenteService.updateUtente(username, body);
     }
 
@@ -67,7 +67,6 @@ public class UtenteController {
     public Utente aggiornaRuoliUtente(
             @PathVariable String username,
             @RequestBody @Valid ModificaRuoliDTO body) {
-
         return utenteService.aggiornaRuoliUtente(username, body);
     }
 

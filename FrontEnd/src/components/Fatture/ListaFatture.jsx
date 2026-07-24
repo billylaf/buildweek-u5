@@ -14,6 +14,7 @@ import { getFatture, deleteFattura } from "./api"
 import NuovaFattura from "./NuovaFattura"
 import DettaglioFattura from "./DettaglioFattura"
 import "./Fattura.css"
+import { getUserRoleInfo } from "../../auth/auth";
 
 const statoColor = {
   PAGATA: "success",
@@ -25,6 +26,9 @@ const statoColor = {
 }
 
 export default function ListaFatture() {
+  // Verifichiamo se l'utente è ADMIN
+const { isAdmin } = getUserRoleInfo();
+
   const [fatture, setFatture] = useState([])
   const [filters, setFilters] = useState({
     clienteId: "",
@@ -88,6 +92,7 @@ export default function ListaFatture() {
   }
 
   const handleDelete = async (f) => {
+    if (!isAdmin) return
     if (!window.confirm(`Eliminare la fattura "FAT-${f.numeroFattura}"?`)) {
       return
     }
@@ -129,6 +134,7 @@ export default function ListaFatture() {
           <h2 className="fw-bold mb-0">Gestione Fatture</h2>
         </Col>
         <Col xs="auto">
+          {/* BOTTONE NUOVA FATTURA: ATTIVO PER TUTTI */}
           <Button
             className="btn-epic-gold"
             onClick={() => {
@@ -259,8 +265,10 @@ export default function ListaFatture() {
                         </Badge>
                       </td>
                       <td>
+                        {/* MODIFICA: SOLO PER ADMIN */}
                         <button
                           className="action-icon-btn"
+                          disabled={!isAdmin}
                           onClick={() => {
                             setEditing(f)
                             setShowForm(true)
@@ -270,14 +278,17 @@ export default function ListaFatture() {
                           <i className="bi bi-pencil"></i>
                         </button>
 
+                        {/* ELIMINA: SOLO PER ADMIN */}
                         <button
                           className="action-icon-btn text-danger"
+                          disabled={!isAdmin}
                           onClick={() => handleDelete(f)}
                           title="Elimina"
                         >
                           <i className="bi bi-trash"></i>
                         </button>
 
+                        {/* DETTAGLIO: APERTO A TUTTI */}
                         <button
                           className="action-icon-btn"
                           onClick={() => {

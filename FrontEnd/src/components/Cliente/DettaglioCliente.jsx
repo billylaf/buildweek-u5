@@ -9,8 +9,12 @@ import {
   Badge,
 } from "react-bootstrap"
 import { getFatture } from "./api"
+import { getUserRoleInfo } from "../../auth/auth";
 
 export default function DettaglioCliente({ cliente, show, onHide, onEdit }) {
+  // Controlliamo se l'utente è ADMIN
+const { isAdmin } = getUserRoleInfo();
+
   const [fatture, setFatture] = useState([])
 
   const fetchFatture = useCallback(() => {
@@ -49,9 +53,11 @@ export default function DettaglioCliente({ cliente, show, onHide, onEdit }) {
         <Container fluid className="px-0">
           <Row className="mb-3">
             <Col className="text-end">
+              {/* PULSANTE MODIFICA: DISABILITATO SE NON E' ADMIN */}
               <Button
                 variant="outline-primary"
                 size="sm"
+                disabled={!isAdmin}
                 onClick={() => onEdit(cliente)}
               >
                 <i className="bi bi-pencil me-1"></i> Modifica
