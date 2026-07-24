@@ -25,7 +25,7 @@ function ListaUtenti({
   const [roleUpdateError, setRoleUpdateError] = useState(null);
 
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailUser, setEmailUser] = useState(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailContent, setEmailContent] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
@@ -116,8 +116,8 @@ function ListaUtenti({
       });
   };
 
-  const handleOpenEmailModal = (user) => {
-    setEmailUser(user);
+  const handleOpenEmailModal = (initialEmail = "") => {
+    setRecipientEmail(initialEmail);
     setEmailSubject("Comunicazione importante");
     setEmailContent("");
     setEmailError(null);
@@ -127,7 +127,7 @@ function ListaUtenti({
 
   const handleCloseEmailModal = () => {
     setShowEmailModal(false);
-    setEmailUser(null);
+    setRecipientEmail("");
     setEmailSubject("");
     setEmailContent("");
     setEmailError(null);
@@ -136,8 +136,14 @@ function ListaUtenti({
 
   const handleSendEmail = (e) => {
     e.preventDefault();
+
+    if (!recipientEmail.trim()) {
+      setEmailError("Inserisci l'indirizzo email del destinatario.");
+      return;
+    }
+
     if (!emailContent.trim()) {
-      setEmailError("Inserisci il contenuto del messaggio.");
+      setEmailError("Inserisci il testo del messaggio.");
       return;
     }
 
@@ -153,7 +159,7 @@ function ListaUtenti({
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        emailDestinatario: emailUser.email,
+        emailDestinatario: recipientEmail,
         oggetto: emailSubject,
         messaggio: emailContent,
       }),
@@ -168,7 +174,9 @@ function ListaUtenti({
       })
       .catch((err) => {
         console.error(err);
-        setEmailError("Errore durante l'invio della mail. Riprova.");
+        setEmailError(
+          "Errore durante l'invio della mail. Verifica l'indirizzo e riprova.",
+        );
         setEmailLoading(false);
       });
   };
@@ -231,6 +239,17 @@ function ListaUtenti({
 
   return (
     <>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h4 className="m-0">Elenco Utenti</h4>
+        <Button
+          variant="outline-primary"
+          size="sm"
+          onClick={() => handleOpenEmailModal("")}
+        >
+          <i className="bi bi-envelope me-1"></i> Invia Nuova Email
+        </Button>
+      </div>
+
       <Table
         responsive
         hover
@@ -312,7 +331,7 @@ function ListaUtenti({
                       variant="outline-primary"
                       size="sm"
                       className="me-2"
-                      onClick={() => handleOpenEmailModal(user)}
+                      onClick={() => handleOpenEmailModal(user.email || "")}
                       title="Invia Email"
                     >
                       <i className="bi bi-envelope"></i>
@@ -385,7 +404,7 @@ function ListaUtenti({
       <Modal show={showEmailModal} onHide={handleCloseEmailModal} centered>
         <Form onSubmit={handleSendEmail}>
           <Modal.Header closeButton>
-            <Modal.Title>Invia Email all'Utente</Modal.Title>
+            <Modal.Title>Invia Email</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {emailError && <Alert variant="danger">{emailError}</Alert>}
@@ -393,41 +412,39 @@ function ListaUtenti({
               <Alert variant="success">Email inviata con successo!</Alert>
             )}
 
-            {emailUser && (
-              <>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">Destinatario</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={emailUser.email}
-                    readOnly
-                    disabled
-                  />
-                </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Destinatario (Email)</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="es. utente@example.com"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">Oggetto Mail</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                    required
-                  />
-                </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Oggetto Mail</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Oggetto dell'email..."
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">Messaggio</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={5}
-                    placeholder="Scrivi qui il messaggio..."
-                    value={emailContent}
-                    onChange={(e) => setEmailContent(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </>
-            )}
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Messaggio</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={5}
+                placeholder="Scrivi qui il messaggio..."
+                value={emailContent}
+                onChange={(e) => setEmailContent(e.target.value)}
+                required
+              />
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button
@@ -435,7 +452,7 @@ function ListaUtenti({
               onClick={handleCloseEmailModal}
               disabled={emailLoading}
             >
-              Uscita
+              Annulla
             </Button>
             <Button variant="primary" type="submit" disabled={emailLoading}>
               {emailLoading ? (
