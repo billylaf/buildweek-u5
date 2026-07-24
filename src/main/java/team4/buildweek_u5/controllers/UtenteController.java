@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import team4.buildweek_u5.entities.Utente;
 import team4.buildweek_u5.recordsDTO.*;
 import team4.buildweek_u5.services.UtenteService;
+import team4.buildweek_u5.tools.EmailSender;
 
 import java.util.List;
 
@@ -18,15 +19,16 @@ import java.util.List;
 public class UtenteController {
 
     private final UtenteService utenteService;
+    private final EmailSender emailSender;
 
-    public UtenteController(UtenteService utenteService) {
+    public UtenteController(UtenteService utenteService, EmailSender emailSender) {
 
         this.utenteService = utenteService;
+        this.emailSender = emailSender;
     }
 
 
     @PostMapping("/register")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public RegistrazioneResponseDTO createAccount(@RequestBody @Validated RegistrazioneDTO body) {
         return new RegistrazioneResponseDTO(this.utenteService.registraUtente(body)
@@ -75,11 +77,12 @@ public class UtenteController {
         this.utenteService.updateAvatar(currentUtente.getUsername(), file);
     }
 
-//    @PostMapping("/invio-email")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void inviaEmailAdUtente(@RequestBody @Valid EmailRequestDTO body) {
-//        this.emailSender.sendEmail(body.emailDestinatario(), body.oggetto(), body.messaggio());
-//    }
+    @PostMapping("/email")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
+    public void inviaEmailAdUtente(@RequestBody @Valid EmailRequestDTO body,
+                                   @AuthenticationPrincipal Utente currentUtente) {
+        this.emailSender.sendEmail(currentUtente.getEmail(), body.emailDestinatario(), body.messaggio());
+    }
 
 }

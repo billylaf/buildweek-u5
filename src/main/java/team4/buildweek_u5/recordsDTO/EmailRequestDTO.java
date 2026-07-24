@@ -8,9 +8,6 @@ public record EmailRequestDTO(
         @Email(message = "Email non valida")
         String emailDestinatario,
 
-        @NotBlank(message = "L'oggetto della mail è obbligatorio")
-        String oggetto,
-
         @NotBlank(message = "Il messaggio non può essere vuoto")
         String messaggio
 ) {

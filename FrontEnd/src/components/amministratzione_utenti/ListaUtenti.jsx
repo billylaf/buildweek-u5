@@ -24,14 +24,6 @@ function ListaUtenti({
   const [roleModalLoading, setRoleModalLoading] = useState(false);
   const [roleUpdateError, setRoleUpdateError] = useState(null);
 
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [recipientEmail, setRecipientEmail] = useState("");
-  const [emailSubject, setEmailSubject] = useState("");
-  const [emailContent, setEmailContent] = useState("");
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [emailError, setEmailError] = useState(null);
-  const [emailSuccess, setEmailSuccess] = useState(false);
-
   useEffect(() => {
     fetchUsers();
   }, [refreshSignal]);
@@ -116,71 +108,6 @@ function ListaUtenti({
       });
   };
 
-  const handleOpenEmailModal = (initialEmail = "") => {
-    setRecipientEmail(initialEmail);
-    setEmailSubject("Comunicazione importante");
-    setEmailContent("");
-    setEmailError(null);
-    setEmailSuccess(false);
-    setShowEmailModal(true);
-  };
-
-  const handleCloseEmailModal = () => {
-    setShowEmailModal(false);
-    setRecipientEmail("");
-    setEmailSubject("");
-    setEmailContent("");
-    setEmailError(null);
-    setEmailSuccess(false);
-  };
-
-  const handleSendEmail = (e) => {
-    e.preventDefault();
-
-    if (!recipientEmail.trim()) {
-      setEmailError("Inserisci l'indirizzo email del destinatario.");
-      return;
-    }
-
-    if (!emailContent.trim()) {
-      setEmailError("Inserisci il testo del messaggio.");
-      return;
-    }
-
-    setEmailLoading(true);
-    setEmailError(null);
-    setEmailSuccess(false);
-    const token = localStorage.getItem("token");
-
-    fetch("http://localhost:8080/utenti/invio-email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        emailDestinatario: recipientEmail,
-        oggetto: emailSubject,
-        messaggio: emailContent,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Errore durante l'invio della mail");
-        setEmailSuccess(true);
-        setEmailLoading(false);
-        setTimeout(() => {
-          handleCloseEmailModal();
-        }, 1500);
-      })
-      .catch((err) => {
-        console.error(err);
-        setEmailError(
-          "Errore durante l'invio della mail. Verifica l'indirizzo e riprova.",
-        );
-        setEmailLoading(false);
-      });
-  };
-
   const handleDelete = (username) => {
     if (window.confirm("Sei sicuro di voler eliminare questo utente?")) {
       const token = localStorage.getItem("token");
@@ -239,15 +166,8 @@ function ListaUtenti({
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="mb-3">
         <h4 className="m-0">Elenco Utenti</h4>
-        <Button
-          variant="outline-primary"
-          size="sm"
-          onClick={() => handleOpenEmailModal("")}
-        >
-          <i className="bi bi-envelope me-1"></i> Invia Nuova Email
-        </Button>
       </div>
 
       <Table
@@ -328,15 +248,6 @@ function ListaUtenti({
                       <i className="bi bi-pencil"></i>
                     </Button>
                     <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleOpenEmailModal(user.email || "")}
-                      title="Invia Email"
-                    >
-                      <i className="bi bi-envelope"></i>
-                    </Button>
-                    <Button
                       variant="outline-danger"
                       size="sm"
                       onClick={() => handleDelete(user.username)}
@@ -395,70 +306,6 @@ function ListaUtenti({
                 <Spinner animation="border" size="sm" />
               ) : (
                 "Salva Modifiche"
-              )}
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
-
-      <Modal show={showEmailModal} onHide={handleCloseEmailModal} centered>
-        <Form onSubmit={handleSendEmail}>
-          <Modal.Header closeButton>
-            <Modal.Title>Invia Email</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {emailError && <Alert variant="danger">{emailError}</Alert>}
-            {emailSuccess && (
-              <Alert variant="success">Email inviata con successo!</Alert>
-            )}
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Destinatario (Email)</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="es. utente@example.com"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Oggetto Mail</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Oggetto dell'email..."
-                value={emailSubject}
-                onChange={(e) => setEmailSubject(e.target.value)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Messaggio</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                placeholder="Scrivi qui il messaggio..."
-                value={emailContent}
-                onChange={(e) => setEmailContent(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={handleCloseEmailModal}
-              disabled={emailLoading}
-            >
-              Annulla
-            </Button>
-            <Button variant="primary" type="submit" disabled={emailLoading}>
-              {emailLoading ? (
-                <Spinner animation="border" size="sm" />
-              ) : (
-                "Invia Email"
               )}
             </Button>
           </Modal.Footer>

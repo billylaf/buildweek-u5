@@ -38,6 +38,15 @@ function MyNavbar({
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [avatarError, setAvatarError] = useState(null);
 
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailError, setEmailError] = useState(null);
+  const [emailSuccess, setEmailSuccess] = useState(null);
+  const [emailData, setEmailData] = useState({
+    emailDestinatario: "",
+    messaggio: "",
+  });
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -125,7 +134,12 @@ function MyNavbar({
       body: JSON.stringify(formData),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Errore durante la creazione dell'utente");
+        if (!res.ok) {
+          if (res.status === 403) {
+            throw new Error("Non hai i permessi per creare utenti!");
+          }
+          throw new Error("Errore durante la creazione dell'utente");
+        }
         return res.json();
       })
       .then(() => {
@@ -136,7 +150,8 @@ function MyNavbar({
       .catch((err) => {
         console.error(err);
         setCreateError(
-          "Impossibile creare l'utente. Verifica i dati inseriti.",
+          err.message ||
+            "Impossibile creare l'utente. Verifica i dati inseriti.",
         );
         setCreateLoading(false);
       });
@@ -193,6 +208,64 @@ function MyNavbar({
         console.error(err);
         setAvatarError("Errore durante il caricamento dell'immagine. Riprova.");
         setAvatarLoading(false);
+      });
+  };
+
+  const handleOpenEmailModal = () => {
+    setEmailData({ emailDestinatario: "", messaggio: "" });
+    setEmailError(null);
+    setEmailSuccess(null);
+    setShowEmailModal(true);
+  };
+
+  const handleCloseEmailModal = () => {
+    setShowEmailModal(false);
+    setEmailError(null);
+    setEmailSuccess(null);
+  };
+
+  const handleEmailInputChange = (e) => {
+    const { name, value } = e.target;
+    setEmailData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSendEmailSubmit = (e) => {
+    e.preventDefault();
+
+    const isConfirmed = window.confirm("Sei sicuro di voler mandare la mail?");
+    if (!isConfirmed) return;
+
+    setEmailLoading(true);
+    setEmailError(null);
+    setEmailSuccess(null);
+
+    const token = localStorage.getItem("token");
+
+    fetch("http://localhost:8080/utenti/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(emailData),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Errore durante l'invio dell'email");
+        setEmailSuccess("Email inviata con successo!");
+        setEmailLoading(false);
+        setTimeout(() => {
+          handleCloseEmailModal();
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error(err);
+        setEmailError(
+          err.message || "Impossibile inviare l'email. Riprova più tardi.",
+        );
+        setEmailLoading(false);
       });
   };
 
@@ -290,6 +363,15 @@ function MyNavbar({
               className="d-flex justify-content-end align-items-center gap-3"
               style={{ flex: "1 1 0px" }}
             >
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={handleOpenEmailModal}
+                title="Invia Email"
+              >
+                <i className="bi bi-envelope-fill me-1"></i> Invia Email
+              </Button>
+
               <NavDropdown
                 title={dropdownTitle}
                 id="navbarScrollingDropdown"
@@ -320,6 +402,59 @@ function MyNavbar({
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      <Modal show={showEmailModal} onHide={handleCloseEmailModal} centered>
+        <Form onSubmit={handleSendEmailSubmit}>
+          <Modal.Header closeButton>
+            <Modal.Title>Invia un'Email</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {emailError && <Alert variant="danger">{emailError}</Alert>}
+            {emailSuccess && <Alert variant="success">{emailSuccess}</Alert>}
+
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Indirizzo Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="emailDestinatario"
+                placeholder="esempio@dominio.com"
+                value={emailData.emailDestinatario}
+                onChange={handleEmailInputChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Contenuto Email</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={4}
+                name="messaggio"
+                placeholder="Scrivi qui il testo del messaggio..."
+                value={emailData.messaggio}
+                onChange={handleEmailInputChange}
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={handleCloseEmailModal}
+              disabled={emailLoading}
+            >
+              Annulla
+            </Button>
+            <Button variant="primary" type="submit" disabled={emailLoading}>
+              {emailLoading ? (
+                <Spinner animation="border" size="sm" />
+              ) : (
+                "Invia Email"
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
 
       <Modal show={showAvatarModal} onHide={handleCloseAvatarModal} centered>
         <Form onSubmit={handleAvatarSubmit}>
