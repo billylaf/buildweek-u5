@@ -2,7 +2,7 @@ package team4.buildweek_u5.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer; // <-- IMPORT AGGIUNTO
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +24,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        // Spring Security di usare la configurazione del file CorsConfig
         httpSecurity.cors(Customizer.withDefaults());
 
         httpSecurity.formLogin(form -> form.disable());
@@ -34,10 +33,8 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.authorizeHttpRequests(req -> req
-                // endpoint aperti a tutti senza token
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/utenti/register").permitAll()
-                // tutte le altre richieste richiede solo che l'utente sia loggato ed in possesso del token
                 .anyRequest().authenticated()
         );
 

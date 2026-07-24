@@ -1,11 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import Login from "./components/login/Login"
-import Sign from "./components/sign/Sign"
-import ListaClienti from "./components/cliente/ListaClienti"
-import ListaFatture from "./components/fatture/ListaFatture"
-import CustomNavbar from "./components/navbar/CustomNavbar"
-import Dashboard from "./components/dashboard/Dashboard"
-import "./Style.css"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./components/login/Login";
+import Sign from "./components/sign/Sign";
+import ListaClienti from "./components/cliente/ListaClienti";
+import ListaFatture from "./components/fatture/ListaFatture";
+import CustomNavbar from "./components/navbar/CustomNavbar";
+import Dashboard from "./components/dashboard/Dashboard";
+import "./Style.css";
+import AmministrazioneUtenti from "./components/amministratzione_utenti/AmministrazioneUtenti";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Sign />} />
+        <Route path="/amministrazione" element={<AmministrazioneUtenti />} />
         {/* Pagina della Dashboard dopo il Login */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/clienti" element={<ListaClienti />} />
@@ -24,5 +26,5 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
