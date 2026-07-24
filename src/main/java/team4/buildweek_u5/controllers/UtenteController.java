@@ -75,4 +75,11 @@ public class UtenteController {
         this.utenteService.updateAvatar(currentUtente.getUsername(), file);
     }
 
+//    @PostMapping("/invio-email")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @ResponseStatus(HttpStatus.OK)
+//    public void inviaEmailAdUtente(@RequestBody @Valid EmailRequestDTO body) {
+//        this.emailSender.sendEmail(body.emailDestinatario(), body.oggetto(), body.messaggio());
+//    }
+
 }
