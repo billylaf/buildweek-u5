@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
-import Form from "react-bootstrap/Form";
-import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
-import Modal from "react-bootstrap/Modal";
-import Alert from "react-bootstrap/Alert";
-import Spinner from "react-bootstrap/Spinner";
+import { useState, useEffect, useRef } from "react"
+import Button from "react-bootstrap/Button"
+import Container from "react-bootstrap/Container"
+import Form from "react-bootstrap/Form"
+import Navbar from "react-bootstrap/Navbar"
+import NavDropdown from "react-bootstrap/NavDropdown"
+import Modal from "react-bootstrap/Modal"
+import Alert from "react-bootstrap/Alert"
+import Spinner from "react-bootstrap/Spinner"
 
 function MyNavbar({
   searchQuery,
@@ -19,33 +19,33 @@ function MyNavbar({
     name: "Mario Rossi",
     avatarUrl: "https://via.placeholder.com/150",
     role: "Amministratore",
-  });
+  })
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [createLoading, setCreateLoading] = useState(false);
-  const [createError, setCreateError] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError, setCreateError] = useState(null)
   const [formData, setFormData] = useState({
     username: "",
     nome: "",
     cognome: "",
     email: "",
     password: "",
-    ruolo: "ROLE_USER",
-  });
+    ruolo: "ROLE_USER", // 🔥 MODIFICATO: DA "USER" A "ROLE_USER"
+  })
 
-  const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarLoading, setAvatarLoading] = useState(false);
-  const [avatarError, setAvatarError] = useState(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarLoading, setAvatarLoading] = useState(false)
+  const [avatarError, setAvatarError] = useState(null)
 
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    fetchProfile()
+  }, [])
 
   const fetchProfile = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
 
     fetch("http://localhost:8080/utenti/me", {
       method: "GET",
@@ -55,16 +55,16 @@ function MyNavbar({
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Errore nel recupero dati profilo");
-        return res.json();
+        if (!res.ok) throw new Error("Errore nel recupero dati profilo")
+        return res.json()
       })
       .then((data) => {
         const hasAdmin = data.authorities?.some(
           (auth) => auth.authority === "ROLE_ADMIN",
-        );
+        )
         const mainRole = hasAdmin
           ? "ADMIN"
-          : data.authorities?.[0]?.authority.replace("ROLE_", "") || "USER";
+          : data.authorities?.[0]?.authority.replace("ROLE_", "") || "USER"
 
         setUserProfile({
           name:
@@ -73,23 +73,23 @@ function MyNavbar({
               : data.username,
           avatarUrl: data.avatar || "https://via.placeholder.com/150",
           role: mainRole,
-        });
+        })
       })
-      .catch((err) => console.error(err));
-  };
+      .catch((err) => console.error(err))
+  }
 
   const handleResetFilters = () => {
-    setSearchQuery("");
-    setSelectedRole("ALL");
-  };
+    setSearchQuery("")
+    setSelectedRole("ALL")
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleOpenCreateModal = () => {
     setFormData({
@@ -98,23 +98,24 @@ function MyNavbar({
       cognome: "",
       email: "",
       password: "",
-      ruolo: "ROLE_USER",
-    });
-    setCreateError(null);
-    setShowCreateModal(true);
-  };
+      ruolo: "ROLE_USER", // 🔥 MODIFICATO: DA "USER" A "ROLE_USER"
+    })
+    setCreateError(null)
+    setShowCreateModal(true)
+  }
 
   const handleCloseCreateModal = () => {
-    setShowCreateModal(false);
-    setCreateError(null);
-  };
+    setShowCreateModal(false)
+    setCreateError(null)
+  }
 
+  // 🔥 MODIFICATA: La funzione handleCreateUserSubmit
   const handleCreateUserSubmit = (e) => {
-    e.preventDefault();
-    setCreateLoading(true);
-    setCreateError(null);
+    e.preventDefault()
+    setCreateLoading(true)
+    setCreateError(null)
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
 
     fetch("http://localhost:8080/utenti/register", {
       method: "POST",
@@ -125,55 +126,61 @@ function MyNavbar({
       body: JSON.stringify(formData),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Errore durante la creazione dell'utente");
-        return res.json();
+        if (!res.ok) {
+          if (res.status === 403) {
+            throw new Error("Non hai i permessi per creare utenti!")
+          }
+          throw new Error("Errore durante la creazione dell'utente")
+        }
+        return res.json()
       })
       .then(() => {
-        setCreateLoading(false);
-        handleCloseCreateModal();
-        if (onUserCreated) onUserCreated();
+        setCreateLoading(false)
+        handleCloseCreateModal()
+        if (onUserCreated) onUserCreated()
       })
       .catch((err) => {
-        console.error(err);
+        console.error(err)
         setCreateError(
-          "Impossibile creare l'utente. Verifica i dati inseriti.",
-        );
-        setCreateLoading(false);
-      });
-  };
+          err.message ||
+            "Impossibile creare l'utente. Verifica i dati inseriti.",
+        )
+        setCreateLoading(false)
+      })
+  }
 
   const handleOpenAvatarModal = (e) => {
-    e.stopPropagation();
-    setAvatarFile(null);
-    setAvatarError(null);
-    setShowAvatarModal(true);
-  };
+    e.stopPropagation()
+    setAvatarFile(null)
+    setAvatarError(null)
+    setShowAvatarModal(true)
+  }
 
   const handleCloseAvatarModal = () => {
-    setShowAvatarModal(false);
-    setAvatarFile(null);
-    setAvatarError(null);
-  };
+    setShowAvatarModal(false)
+    setAvatarFile(null)
+    setAvatarError(null)
+  }
 
   const handleAvatarFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setAvatarFile(e.target.files[0]);
+      setAvatarFile(e.target.files[0])
     }
-  };
+  }
 
   const handleAvatarSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!avatarFile) {
-      setAvatarError("Seleziona un file prima di procedere.");
-      return;
+      setAvatarError("Seleziona un file prima di procedere.")
+      return
     }
 
-    setAvatarLoading(true);
-    setAvatarError(null);
+    setAvatarLoading(true)
+    setAvatarError(null)
 
-    const token = localStorage.getItem("token");
-    const uploadFormData = new FormData();
-    uploadFormData.append("avatar", avatarFile);
+    const token = localStorage.getItem("token")
+    const uploadFormData = new FormData()
+    uploadFormData.append("avatar", avatarFile)
 
     fetch("http://localhost:8080/utenti/me/avatar", {
       method: "PATCH",
@@ -184,17 +191,17 @@ function MyNavbar({
     })
       .then((res) => {
         if (!res.ok)
-          throw new Error("Errore durante l'aggiornamento dell'immagine");
-        fetchProfile();
-        setAvatarLoading(false);
-        handleCloseAvatarModal();
+          throw new Error("Errore durante l'aggiornamento dell'immagine")
+        fetchProfile()
+        setAvatarLoading(false)
+        handleCloseAvatarModal()
       })
       .catch((err) => {
-        console.error(err);
-        setAvatarError("Errore durante il caricamento dell'immagine. Riprova.");
-        setAvatarLoading(false);
-      });
-  };
+        console.error(err)
+        setAvatarError("Errore durante il caricamento dell'immagine. Riprova.")
+        setAvatarLoading(false)
+      })
+  }
 
   const dropdownTitle = (
     <div className="d-inline-flex align-items-center me-1">
@@ -224,7 +231,7 @@ function MyNavbar({
         </small>
       </div>
     </div>
-  );
+  )
 
   return (
     <>
@@ -466,7 +473,7 @@ function MyNavbar({
         </Form>
       </Modal>
     </>
-  );
+  )
 }
 
-export default MyNavbar;
+export default MyNavbar
