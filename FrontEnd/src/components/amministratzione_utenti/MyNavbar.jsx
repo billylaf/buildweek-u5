@@ -314,13 +314,15 @@ function MyNavbar({
                 </NavDropdown.Item>
               </NavDropdown>
 
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleOpenCreateModal}
-              >
-                <i className="bi bi-person-plus me-1"></i> Crea Utente
-              </Button>
+              {userProfile.role === "ADMIN" && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleOpenCreateModal}
+                >
+                  <i className="bi bi-person-plus me-1"></i> Crea Utente
+                </Button>
+              )}
             </div>
           </Navbar.Collapse>
         </Container>
